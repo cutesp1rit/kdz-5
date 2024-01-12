@@ -10,7 +10,10 @@
         }
         public static void Main()
         {
-            Console.WriteLine("Введите код программы:");
+            int a;
+            int.TryParse("  234", out a);
+            Console.WriteLine(a);
+            Console.WriteLine();
             string? code = Console.ReadLine();
             State state = State.Program;
             int commentCount = 0;
