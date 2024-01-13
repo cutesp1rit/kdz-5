@@ -14,7 +14,7 @@ namespace LIBRARY
         public static void ReadJson()
         {
             string[] massivOfFields = { "store_id", "store_name", "location", "employees", "products" };
-            string[] information = new string[3];
+            string[] information = new string[3]; // сохранение информации для некоторых полей
             
             Object[] myObjects = new object[0];
             
@@ -26,7 +26,7 @@ namespace LIBRARY
 
             int indexOfObject = 0; // индекс для заноса объектов в массив
             int indexOfLetters = 0; // индекс по проходу всего файла
-            string nameField; string contentOfField;
+            string nameField=""; string contentOfField="";
             
             State state = State.Field;
             while (indexOfLetters < allStrings.Length)
@@ -35,7 +35,7 @@ namespace LIBRARY
                 char symbol = allStrings[indexOfLetters];
                 switch (state)
                 {
-                    case State.Field when symbol == '"':
+                    case State.Field when symbol == '"': // считываем поле
                         indexOfLetters++;
                         StringBuilder field = new StringBuilder();
                         while (allStrings[indexOfLetters] != '"')
@@ -56,29 +56,52 @@ namespace LIBRARY
                         }
                         break;
                     case State.ContentFieldForId when symbol == ':':
-                        StringBuilder fieldContent = new StringBuilder();
+                        // возможно может быть ошибка из-за enter, но вроде нет
+                        StringBuilder fieldContentId = new StringBuilder();
                         indexOfLetters++;
                         while (allStrings[indexOfLetters] != ',')
+                        {
+                            fieldContentId.Append(allStrings[indexOfLetters]);
+                            indexOfLetters++;
+                        }
+                        indexOfLetters++;
+
+                        contentOfField = fieldContentId.ToString().Trim(' ');
+                        state = State.Field;
+                        information[0] = contentOfField;
+                        break;
+                    case State.ContentField when symbol == '"':
+                        StringBuilder fieldContent = new StringBuilder();
+                        indexOfLetters++;
+                        while (allStrings[indexOfLetters] != '"')
                         {
                             fieldContent.Append(allStrings[indexOfLetters]);
                             indexOfLetters++;
                         }
                         indexOfLetters++;
-
-                        contentOfField = fieldContent.ToString().Trim(' ');
+                        
+                        contentOfField = fieldContent.ToString();
                         state = State.Field;
-                        information[0] = contentOfField;
-                        break;
-                    case State.Comment when symbol == '\n':
-                        state = State.Program;
-                        indexOfLetters++;
+                        
+                        if (nameField == "store_name")
+                        {
+                            information[1] = contentOfField;
+                        }
+                        else // значит это location
+                        {
+                            information[2] = contentOfField;
+                        }
                         break;
                     case State.String when symbol == '"':
                         state = State.Program;
                         indexOfLetters++;
                         break;
                     case State.Field when symbol == '}':
+                        // и еще создать объект здесь надо
                         indexOfObject++;
+                        indexOfLetters++;
+                        break;
+                    default:
                         indexOfLetters++;
                         break;
                 }
