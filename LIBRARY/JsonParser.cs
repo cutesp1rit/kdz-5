@@ -9,24 +9,28 @@ namespace LIBRARY
             Field,
             ContentField,
             ContentFieldForId, // это специальное состояние для id, так как оно идет без кавычек, а как число
-            ContentFileForMassiv // состояние для полей с данными из массивов
+            ContentFiledForMassiv // состояние для полей с данными из массивов
         }
         public static void ReadJson()
         {
             string[] massivOfFields = { "store_id", "store_name", "location", "employees", "products" };
             string[] information = new string[3]; // сохранение информации для некоторых полей
+            string[] employeesMassiv = new string[0]; // массив для всех сотрудников
+            string[] productsMassiv = new string[0]; // массив для всех продуктов
             
-            Object[] myObjects = new object[0];
-            
-            string allStrings = File.ReadAllText(fPath);
+            string allStrings = File.ReadAllText("my.txt");
             if (allStrings==null || allStrings.Length == 0) // если файл пустой или null выбрасываем исключение
             {
                 // throw new ArgumentNullException();
             }
-
+            
+            // вот это может заменить.....
+            Object[] myObjects = new object[allStrings.Split('{').Length - 1];
+            
             int indexOfObject = 0; // индекс для заноса объектов в массив
             int indexOfLetters = 0; // индекс по проходу всего файла
             string nameField=""; string contentOfField="";
+            StringBuilder contentForMassiv = new StringBuilder(); // строим строку с данными, чтобы потом сделать массив
             
             State state = State.Field;
             while (indexOfLetters < allStrings.Length)
@@ -56,7 +60,7 @@ namespace LIBRARY
                         }
                         break;
                     case State.ContentFieldForId when symbol == ':':
-                        // возможно может быть ошибка из-за enter, но вроде нет
+                        // возможно может быть ошибка из-за \n or \r, но вроде нет
                         StringBuilder fieldContentId = new StringBuilder();
                         indexOfLetters++;
                         while (allStrings[indexOfLetters] != ',')
@@ -92,13 +96,46 @@ namespace LIBRARY
                             information[2] = contentOfField;
                         }
                         break;
-                    case State.String when symbol == '"':
-                        state = State.Program;
+                    case State.ContentField when symbol == '[':
+                        state = State.ContentFiledForMassiv;
                         indexOfLetters++;
                         break;
+                    case State.ContentFiledForMassiv when symbol == '"':
+                        StringBuilder content = new StringBuilder();
+                        indexOfLetters++;
+                        while (allStrings[indexOfLetters] != '"')
+                        {
+                            content.Append(allStrings[indexOfLetters]);
+                            indexOfLetters++;
+                        }
+                        indexOfLetters++;
+
+                        contentForMassiv.Append(content);
+                        contentForMassiv.Append(';');
+                        break;
+                    case State.ContentFiledForMassiv when symbol == ']':
+                        state = State.Field;
+                        indexOfLetters++;
+                        if (nameField == "employees")
+                        {
+                            employeesMassiv = contentForMassiv.ToString().Split(';')[..^1];
+                            // обрезаем массив, так как при сплите самый последний элемент - пустота
+                        }
+                        else // значит это products
+                        {
+                            productsMassiv = contentForMassiv.ToString().Split(';')[..^1];
+                        }
+                        contentForMassiv = new StringBuilder(); // обнуляем
+                        break;
                     case State.Field when symbol == '}':
-                        // и еще создать объект здесь надо
+                        // и еще создать объект здесь надо, а также массив обнулить и все переменные обнулить, наверное
+                        // myObjects[indexOfObject] 
                         indexOfObject++;
+                        indexOfLetters++;
+                        break;
+                    case State.ContentField when symbol == ',':
+                        // вместо значения был null --> оставляем пустое значение в таком случае
+                        state = State.Field;
                         indexOfLetters++;
                         break;
                     default:
