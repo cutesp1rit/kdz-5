@@ -1,3 +1,6 @@
+using System.Text;
+using System.Xml.Serialization;
+
 namespace LIBRARY;
 
 public class Store
@@ -45,5 +48,28 @@ public class Store
         _location = location;
         _employees = employees;
         _products = products;
+    }
+
+    public override string ToString()
+    {
+        StringBuilder myString = new StringBuilder();
+        myString.Append(StoreId);
+        myString.Append(' ');
+        myString.Append(StoreName);
+        myString.Append(' ');
+        myString.Append(Location);
+        myString.Append('\n');
+        foreach (string some in  Employees)
+        {
+            myString.Append(some);
+            myString.Append(' ');
+        }
+        myString.Append('\n');
+        foreach (string some in Products)
+        {
+            myString.Append(some);
+            myString.Append(' ');
+        }
+        return myString.ToString();
     }
 }

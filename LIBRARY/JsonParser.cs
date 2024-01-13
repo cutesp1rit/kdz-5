@@ -11,13 +11,14 @@ namespace LIBRARY
             ContentFieldForId, // это специальное состояние для id, так как оно идет без кавычек, а как число
             ContentFiledForMassiv // состояние для полей с данными из массивов
         }
-        public static void ReadJson()
+        public static Store[] ReadJson()
         {
             string[] massivOfFields = { "store_id", "store_name", "location", "employees", "products" };
             string[] information = new string[3]; // сохранение информации для некоторых полей
             string[] employeesMassiv = new string[0]; // массив для всех сотрудников
             string[] productsMassiv = new string[0]; // массив для всех продуктов
             
+            // try catch??
             string allStrings = File.ReadAllText("data_12V.json");
             if (allStrings==null || allStrings.Length == 0) // если файл пустой или null выбрасываем исключение
             {
@@ -135,7 +136,7 @@ namespace LIBRARY
                         {
                             id = -1; // или может здесь лучше исключение выкинуть
                         }
-
+                        
                         objects[indexOfObject] = new Store(id, information[1], information[2], employeesMassiv,
                             productsMassiv);
                         
@@ -157,6 +158,8 @@ namespace LIBRARY
                         break;
                 }
             }
+
+            return objects;
         }
     }
 }

@@ -1,46 +1,19 @@
-﻿namespace APP
+﻿using LIBRARY;
+
+namespace APP
 {
     public class Program
     {
-        public enum State
-        {
-            String,
-            Comment,
-            Program
-        }
+        // сделай проверку на null и поиграйся с файлом. напиши имя фамилию и тд. надо чтобы успешно считывался!!
+        // коммы может добавить
         public static void Main()
         {
-            int a;
-            int.TryParse("  234", out a);
-            Console.WriteLine(a);
-            Console.WriteLine();
-            string? code = Console.ReadLine();
-            State state = State.Program;
-            int commentCount = 0;
-            int stringCount = 0;
-            foreach (var symbol in code ?? "")
+            Store[] objects = JsonParser.ReadJson();
+            foreach (Store obj in objects)
             {
-                switch (state)
-                {
-                    case State.Program when symbol == '/':
-                        commentCount++;
-                        state = State.Comment;
-                        break;
-                    case State.Program when symbol == '"':
-                        stringCount++;
-                        state = State.String;
-                        break;
-                    case State.Comment when symbol == '\n':
-                        state = State.Program;
-                        break;
-                    case State.String when symbol == '"':
-                        state = State.Program;
-                        break;
-                }
+                Console.WriteLine(obj);
+                Console.WriteLine();
             }
-
-            Console.WriteLine($"Количество строк: {stringCount}");
-            Console.WriteLine($"Количество комментариев: {commentCount}");
         }
     }
 
