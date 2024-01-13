@@ -18,14 +18,14 @@ namespace LIBRARY
             string[] employeesMassiv = new string[0]; // массив для всех сотрудников
             string[] productsMassiv = new string[0]; // массив для всех продуктов
             
-            string allStrings = File.ReadAllText("my.txt");
+            string allStrings = File.ReadAllText("data_12V.json");
             if (allStrings==null || allStrings.Length == 0) // если файл пустой или null выбрасываем исключение
             {
                 // throw new ArgumentNullException();
             }
             
             // вот это может заменить.....
-            Object[] myObjects = new object[allStrings.Split('{').Length - 1];
+            Store[] objects = new Store[allStrings.Split('{').Length - 1];
             
             int indexOfObject = 0; // индекс для заноса объектов в массив
             int indexOfLetters = 0; // индекс по проходу всего файла
@@ -129,7 +129,21 @@ namespace LIBRARY
                         break;
                     case State.Field when symbol == '}':
                         // и еще создать объект здесь надо, а также массив обнулить и все переменные обнулить, наверное
-                        // myObjects[indexOfObject] 
+                        int id = 0;
+                        // если id не целый или null, или там лишние символы
+                        if (!int.TryParse(information[0], out id))
+                        {
+                            id = -1; // или может здесь лучше исключение выкинуть
+                        }
+
+                        objects[indexOfObject] = new Store(id, information[1], information[2], employeesMassiv,
+                            productsMassiv);
+                        
+                        // обнуляем все массивы для новых будущих объектов
+                        information = new string[3];
+                        employeesMassiv = new string[0]; 
+                        productsMassiv = new string[0];
+                        
                         indexOfObject++;
                         indexOfLetters++;
                         break;
