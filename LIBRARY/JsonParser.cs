@@ -14,7 +14,7 @@ namespace LIBRARY
         public static Store[] ReadJson()
         {
             string[] massivOfFields = { "store_id", "store_name", "location", "employees", "products" };
-            string[] information = new string[3]; // сохранение информации для некоторых полей
+            string[] information = { "", "", ""}; // сохранение информации для некоторых полей
             string[] employeesMassiv = new string[0]; // массив для всех сотрудников
             string[] productsMassiv = new string[0]; // массив для всех продуктов
             
@@ -141,7 +141,7 @@ namespace LIBRARY
                             productsMassiv);
                         
                         // обнуляем все массивы для новых будущих объектов
-                        information = new string[3];
+                        information[0] = ""; information[1] = ""; information[2] = "";
                         employeesMassiv = new string[0]; 
                         productsMassiv = new string[0];
                         
