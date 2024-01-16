@@ -1,10 +1,11 @@
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace LIBRARY;
 
 public static class Methods
 {
-    enum State
+    private enum State
     {
         Start, // самое начальное состояние перед квадратной скобкой
         Program, // состояние, когда мы еще не зашли в определенный объект, то есть не прочитали фигурные скобки
@@ -29,15 +30,8 @@ public static class Methods
     // было невозможно создавать объекты для класса требуемого в кдз). 
     // поэтому я опираюсь на то, что напротив store_id не может быть массива строк, а напротив location не может
     // быть интовского значения. если такое происходит -- файл некорректный
-    public static void CheсkString()
+    public static void CheсkString(string allStrings)
     {
-        // Поработать с исключениями, подключить подходящие и информативные, а не одни и те же
-        string allStrings = File.ReadAllText("data_12V.json");
-        if (allStrings==null || allStrings.Length == 0) // если файл пустой или null выбрасываем исключение
-        {
-            throw new ArgumentNullException();
-        }
-
         int indexOfLetters = 0; // индекс по проходу всего файла
         State state = State.Start; // состояние
         string nameField = "";
@@ -176,7 +170,7 @@ public static class Methods
             switch (numberOfPoint)
             {
                 case "1":
-                    ReadingThroughFile();
+                    // ReadingThroughFile();
                     switchFlag = false;
                     break;
                 case "2":
@@ -190,13 +184,65 @@ public static class Methods
         } while (switchFlag);
     }
 
-    public static void ReadingThroughFile()
+    public static void ReadingThroughFile(ref int indexOfObject, Store[] objects)
     {
+        // абсолютный путь ? или просто имя файла? 
         
+        Console.WriteLine("Введите имя файла (разрешение не указывайте): ");
+        while (true)
+        {
+            try
+            {
+                string path = "." + Path.DirectorySeparatorChar + Console.ReadLine() + ".json"; // назначение пути
+                string allStrings = File.ReadAllText(path);
+                if (allStrings == null || allStrings.Length == 0) // если файл пустой или null выбрасываем исключение
+                {
+                    throw new ArgumentNullException();
+                } 
+                CheсkString(allStrings);
+                JsonParser.ReadJson(allStrings, objects, ref indexOfObject);
+                Console.WriteLine("Файл успешно считан.");
+                break;
+            }
+            catch (ArgumentNullException e)
+            {
+                Console.WriteLine("Файл отсутствует или его структура не соответствуют варианту/шаблону json. Повторите попытку: ");
+            }
+            catch (ArgumentException e)
+            {
+                Console.WriteLine("Возникла ошибка при открытии файла, повторите попытку: ");
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine("Введено некорректное название файла или он находится не в текущей директории, повторите попытку: ");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Возникла непредвиденная ошибка, повторите попытку: ");
+            }
+        }
     }
 
     public static void ReadingThroughConsole()
     {
+        Console.WriteLine("Введите количество объектов, которые вы хотите добавить в файл: ");
+        int kol;
+        if (!(int.TryParse(Console.ReadLine(), out kol) && kol > 0))
+        {
+            Console.WriteLine("Пожалуйста, введите целое число большее нуля: ");
+        }
         
+        Console.WriteLine("Теперь произведите ввод по каждому объекту. После каждого объекта мы будем вас уведомлять о корректном вводе.");
+        Console.WriteLine("Вот так выглядит структура правильного ввода данных. Пожалуйста, соблюдайте ее, иначе ваши данные нельзя будет считать.");
+        // добавить здесь \r
+        Console.WriteLine("{\n    \"store_id\": 3,\n    \"store_name\": \"English, Tran and Horne\",\n    \"location\": \"New Dustinview\",\n    \"employees\": [\n      \"Christopher Brewer\",\n      \"Jackie Reed\",\n      \"Cory Yates\",\n      \"Nicole Montoya\",\n      \"Stacy Hansen\",\n      \"Julie Garcia\",\n      \"Thomas Rose\",\n      \"Jeffrey Martin\"\n    ],\n    \"products\": [\n      \"especially\",\n      \"upon\",\n      \"when\",\n      \"before\",\n      \"various\",\n      \"entire\",\n      \"government\",\n      \"official\",\n      \"wide\",\n      \"boy\"\n    ]\n  },");
+
+        for (int i = 0; i < kol; i++)
+        {
+            StringBuilder newObject = new StringBuilder("[");
+            // newObject.Append(Console.ReadLine()); ??? 
+            newObject.Append("]"); 
+            // CheсkString(); --> должен передавать строку дополнительно
+        }
     }
 }

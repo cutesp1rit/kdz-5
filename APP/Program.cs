@@ -26,6 +26,9 @@ namespace APP
                 Console.WriteLine();
             } */
             
+            Store[] objects = new Store[10000]; // создаю массив для большого количества объектов, так как пользователь
+            // может добавлять их по мере работе программы
+            int indexOfObjects = 0;
             bool mainFlag = true;
             do
             {
