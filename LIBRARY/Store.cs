@@ -50,6 +50,7 @@ public class Store
         _products = products;
     }
 
+    // вот этот метод потом уберу, наверное
     public override string ToString()
     {
         StringBuilder myString = new StringBuilder();

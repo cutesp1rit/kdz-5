@@ -4,7 +4,7 @@ namespace LIBRARY;
 
 public static class Methods
 {
-    public enum State
+    enum State
     {
         Start, // самое начальное состояние перед квадратной скобкой
         Program, // состояние, когда мы еще не зашли в определенный объект, то есть не прочитали фигурные скобки
@@ -162,5 +162,41 @@ public static class Methods
         {
             throw new AggregateException();
         }
+    }
+
+    public static void PreparationForReading()
+    {
+        bool switchFlag = true;
+        do
+        {
+            Console.WriteLine("Укажите, как вы бы хотели ввести данные:");
+            Console.WriteLine("\t1. Через консоль");
+            Console.WriteLine("\t2. Предоставить путь к файлу для чтения данных");
+            string numberOfPoint = Console.ReadLine();
+            switch (numberOfPoint)
+            {
+                case "1":
+                    ReadingThroughFile();
+                    switchFlag = false;
+                    break;
+                case "2":
+                    ReadingThroughConsole();
+                    switchFlag = false;
+                    break;
+                default:
+                    Console.WriteLine("Введенное значение может быть от 1 до 2, как выбор пункта для запуска действия, повторите попытку.");
+                    break;
+            }
+        } while (switchFlag);
+    }
+
+    public static void ReadingThroughFile()
+    {
+        
+    }
+
+    public static void ReadingThroughConsole()
+    {
+        
     }
 }

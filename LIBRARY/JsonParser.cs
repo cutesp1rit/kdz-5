@@ -4,7 +4,7 @@ namespace LIBRARY
 {
     public static class JsonParser
     {
-        public enum State
+        enum State
         {
             Field,
             ContentField,
