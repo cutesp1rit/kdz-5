@@ -8,6 +8,7 @@ namespace APP
         
         // сделай проверку на null и поиграйся с файлом. напиши имя фамилию и тд. надо чтобы успешно считывался!!
         // коммы может добавить
+        // проверить, что со списками все норм
         public static void Main()
         {
             Menu switchTest = new Menu(new[] {"\t1. Ввести данные через консоль или предоставить путь к файлу " +
@@ -16,9 +17,7 @@ namespace APP
                 "\t5. Выйти из программы"});
             Console.WriteLine(switchTest.ShowMenu() + 1);
             
-            Store[] objects = new Store[10000]; // создаю массив для большого количества объектов, так как пользователь
-            // может добавлять их по мере работе программы
-            int indexOfObjects = 0;
+            List<Store> objects = new List<Store>(150); // список для объектов Store
             bool mainFlag = true;
             do
             {

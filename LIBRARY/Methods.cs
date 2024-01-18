@@ -156,7 +156,7 @@ public static class Methods
         }
     }
 
-    public static void PreparationForReading()
+    public static void PreparationForReading(List<Store> objects)
     {
         bool switchFlag = true;
         do
@@ -168,11 +168,11 @@ public static class Methods
             switch (numberOfPoint)
             {
                 case "1":
-                    // ReadingThroughFile();
+                    ReadingThroughFile(objects);
                     switchFlag = false;
                     break;
                 case "2":
-                    ReadingThroughConsole();
+                    ReadingThroughConsole(objects);
                     switchFlag = false;
                     break;
                 default:
@@ -182,7 +182,7 @@ public static class Methods
         } while (switchFlag);
     }
 
-    public static void ReadingThroughFile(ref int indexOfObject, Store[] objects)
+    public static void ReadingThroughFile(List<Store> objects)
     {
         // абсолютный путь ? или просто имя файла? 
         
@@ -198,7 +198,7 @@ public static class Methods
                     throw new ArgumentNullException();
                 } 
                 CheсkString(allStrings);
-                JsonParser.ReadJson(allStrings, objects, ref indexOfObject);
+                JsonParser.ReadJson(allStrings, objects);
                 Console.WriteLine("Файл успешно считан.");
                 break;
             }
@@ -221,7 +221,7 @@ public static class Methods
         }
     }
 
-    public static void ReadingThroughConsole()
+    public static void ReadingThroughConsole(List<Store> objects)
     {
         Console.WriteLine("Теперь произведите ввод по каждому объекту. После каждого объекта мы будем вас уведомлять о корректном вводе.");
         Console.WriteLine("Квадртные скобки не требуются, введите данные по объекту, как и в json файле с фигурными скобками.");
@@ -246,7 +246,7 @@ public static class Methods
             try
             {
                 CheсkString(newObject.ToString());
-                // ReadJson();
+                JsonParser.ReadJson(newObject.ToString(), objects);
                 Console.WriteLine("Объект успешно считан и добавлен");
             }
             catch (Exception e)

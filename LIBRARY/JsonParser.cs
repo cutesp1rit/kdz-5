@@ -11,7 +11,8 @@ namespace LIBRARY
             ContentFieldForId, // это специальное состояние для id, так как оно идет без кавычек, а как число
             ContentFiledForMassiv // состояние для полей с данными из массивов
         }
-        public static Store[] ReadJson(string allStrings, Store[] objects, ref int indexOfObject)
+        // проверь, чтобы со списками все работало!!!!!
+        public static List<Store> ReadJson(string allStrings, List<Store> objects)
         {
             string[] massivOfFields = { "store_id", "store_name", "location", "employees", "products" };
             string[] information = { "", "", ""}; // сохранение информации для некоторых полей
@@ -126,15 +127,13 @@ namespace LIBRARY
                             id = -1; // или может здесь лучше исключение выкинуть
                         }
                         
-                        objects[indexOfObject] = new Store(id, information[1], information[2], employeesMassiv,
-                            productsMassiv);
+                        objects.Add(new Store(id, information[1], information[2], employeesMassiv,
+                            productsMassiv));
                         
                         // обнуляем все массивы для новых будущих объектов
                         information[0] = ""; information[1] = ""; information[2] = "";
                         employeesMassiv = new string[0]; 
                         productsMassiv = new string[0];
-                        
-                        indexOfObject++;
                         indexOfLetters++;
                         break;
                     case State.ContentField when symbol == ',':
