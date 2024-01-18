@@ -80,7 +80,7 @@ public static class Methods
                     // если state не изменился, значит название поля неверное
                     if (state == State.Field)
                     {
-                        throw new ArgumentException();
+                        throw new ArgumentNullException();
                     }
                     indexOfLetters++;
                     break;
@@ -152,34 +152,24 @@ public static class Methods
         }
         if (state != State.Finish)
         {
-            throw new AggregateException();
+            throw new ArgumentNullException();
         }
     }
 
     public static void PreparationForReading(List<Store> objects)
     {
-        bool switchFlag = true;
-        do
+        Menu switchPreparation = new Menu(new[]
+            { "\t1. Ввести данные через консоль", "\t2. Предоставить путь к файлу для чтения данных" },
+            "Укажите, как вы бы хотели ввести данные:");
+        switch (switchPreparation.ShowMenu())
         {
-            Console.WriteLine("Укажите, как вы бы хотели ввести данные:");
-            Console.WriteLine("\t1. Через консоль");
-            Console.WriteLine("\t2. Предоставить путь к файлу для чтения данных");
-            string numberOfPoint = Console.ReadLine();
-            switch (numberOfPoint)
-            {
-                case "1":
-                    ReadingThroughFile(objects);
-                    switchFlag = false;
-                    break;
-                case "2":
-                    ReadingThroughConsole(objects);
-                    switchFlag = false;
-                    break;
-                default:
-                    Console.WriteLine("Введенное значение может быть от 1 до 2, как выбор пункта для запуска действия, повторите попытку.");
-                    break;
-            }
-        } while (switchFlag);
+            case 1:
+                ReadingThroughConsole(objects);
+                break;
+            case 2:
+                ReadingThroughFile(objects);
+                break;
+        }
     }
 
     public static void ReadingThroughFile(List<Store> objects)
@@ -224,10 +214,15 @@ public static class Methods
     public static void ReadingThroughConsole(List<Store> objects)
     {
         Console.WriteLine("Теперь произведите ввод по каждому объекту. После каждого объекта мы будем вас уведомлять о корректном вводе.");
-        Console.WriteLine("Квадртные скобки не требуются, введите данные по объекту, как и в json файле с фигурными скобками.");
+        Console.WriteLine("Квадратные скобки не требуются, введите данные по объекту, как и в json файле с фигурными скобками.");
         Console.WriteLine("Вот так выглядит структура правильного ввода данных. Пожалуйста, соблюдайте ее, иначе ваши данные нельзя будет считать.");
-        // добавить здесь \r
-        Console.WriteLine("{\n    \"store_id\": 3,\n    \"store_name\": \"English, Tran and Horne\",\n    \"location\": \"New Dustinview\",\n    \"employees\": [\n      \"Christopher Brewer\",\n      \"Jackie Reed\",\n      \"Cory Yates\",\n      \"Nicole Montoya\",\n      \"Stacy Hansen\",\n      \"Julie Garcia\",\n      \"Thomas Rose\",\n      \"Jeffrey Martin\"\n    ],\n    \"products\": [\n      \"especially\",\n      \"upon\",\n      \"when\",\n      \"before\",\n      \"various\",\n      \"entire\",\n      \"government\",\n      \"official\",\n      \"wide\",\n      \"boy\"\n    ]\n  },");
+        Console.WriteLine("{\n    \"store_id\": 3,\n    \"store_name\": \"English, Tran and Horne\",\n    \"location\": \"New Dustinview\",\n " +
+                          "   \"employees\": [\n      \"Christopher Brewer\",\n      \"Jackie Reed\",\n      \"Cory Yates\",\n      \"Nicole Montoya\",\n      \"Stacy Hansen\",\n     " +
+                          " \"Julie Garcia\",\n      \"Thomas Rose\",\n      \"Jeffrey Martin\"\n    ],\n    \"products\": [\n      \"especially\",\n      \"upon\",\n      \"when\",\n " +
+                          "     \"before\",\n      \"various\",\n      \"entire\",\n      \"government\",\n      \"official\",\n      \"wide\",\n      \"boy\"\n    ]\n  }");
+        // вот про это еще лучше у ассиста спросить!!
+        Console.WriteLine("Когда объект будет введен нажмите \"CTRL\" + \"Z\"!!!");
+        Console.WriteLine("Введите ваш объект (можно сразу несколько через запятую): ");
         bool flagForObject = true;
         
         while (flagForObject)
@@ -255,8 +250,8 @@ public static class Methods
                 continue;
             }
             
-            Console.WriteLine("Хотите добавить еще объектов?");
-            Menu switchWriter = new Menu(new[] { "\t1. Хочу добавить еще объектов", "\t2. Больше не хочу добавлять объекты" });
+            Menu switchWriter = new Menu(new[] { "\t1. Хочу добавить еще объектов", "\t2. Больше не хочу " +
+                "добавлять объекты" }, "Хотите добавить еще объектов?");
             if (switchWriter.ShowMenu() == 1)
             {
                 continue;
@@ -266,5 +261,37 @@ public static class Methods
                 flagForObject = false;
             }
         }
+    }
+
+    public static void FilterList(List<Store> objects)
+    {
+        Menu switchFilter = new Menu(new[] {"store_id", "store_name", "location", "employees", "products" }, "По какому полю произвести фильтрацию?");
+        switch (switchFilter.ShowMenu())
+        {
+            case 1:
+                // FilterField("store_id", objects);
+                break;
+            case 2:
+                // FilterField("store_name", objects);
+                break;
+            case 3:
+                // FilterField("location", objects);
+                break;
+            case 4:
+                // FilterField("employees", objects);
+                break;
+            case 5:
+                // FilterField("products", objects);
+                break;
+        }
+        
+        foreach (Store obj in objects)
+        {
+            Console.WriteLine(obj);
+            Console.WriteLine();
+        }
+        
+        Console.WriteLine("Нажмите Enter, чтобы перейти обратно к меню...");
+        Console.ReadLine();
     }
 }

@@ -3,10 +3,12 @@ namespace LIBRARY;
 public class Menu
 {
     private string[] _arrayCases;
+    private string _quastion;
 
-    public Menu(string[] arrayCases)
+    public Menu(string[] arrayCases, string quastion)
     {
         _arrayCases = arrayCases;
+        _quastion = quastion;
     }
 
     /// <summary>
@@ -20,11 +22,13 @@ public class Menu
         int indexOfColour = 0; // изначально первая строка будет показываться как выборочной
 
         while (flagChoosing)
-        {
+        { 
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Green; // устанавливаем цвет
             Console.WriteLine("С помощью перемещения стрелками вверх и вниз выберите подходящий вам пункт.");
             Console.WriteLine("Когда выберете подходящий пункт, нажмите enter.");
+            Console.ForegroundColor = ConsoleColor.Magenta; // устанавливаем цвет
+            Console.WriteLine(_quastion);
             Console.ResetColor(); // сбрасываем в стандартный
             for (int i = 0; i < indexOfColour; i++)
             {
@@ -67,6 +71,6 @@ public class Menu
         Console.WriteLine(_arrayCases[indexOfColour]);
         Console.ResetColor(); // сбрасываем в стандартный
 
-        return indexOfColour;
+        return indexOfColour + 1;
     }
 }
