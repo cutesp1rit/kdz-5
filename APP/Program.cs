@@ -10,21 +10,11 @@ namespace APP
         // коммы может добавить
         public static void Main()
         {
-            /* try
-            {
-                Methods.CheсkString();
-                Console.WriteLine("Файл считан успешно!");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Это файл с некорректными данными!");
-            }
-            Store[] objects = JsonParser.ReadJson();
-            foreach (Store obj in objects)
-            {
-                Console.WriteLine(obj);
-                Console.WriteLine();
-            } */
+            Menu switchTest = new Menu(new[] {"\t1. Ввести данные через консоль или предоставить путь к файлу " +
+                                              "для чтения данных", "\t2. Отфильтровать данные по одному из полей", "\t3. " +
+                "Отсортировать данные по одному из полей",  "\t4. Ввести (сохранить) данные через консоль или файл", 
+                "\t5. Выйти из программы"});
+            Console.WriteLine(switchTest.ShowMenu() + 1);
             
             Store[] objects = new Store[10000]; // создаю массив для большого количества объектов, так как пользователь
             // может добавлять их по мере работе программы

@@ -41,10 +41,8 @@ public static class Methods
             char symbol = allStrings[indexOfLetters];
             switch (symbol)
             {
-                case '[' when state == State.Start:
-                    indexOfLetters++;
-                    state = State.Program;
-                    break;
+                // декомпозировать код вот так?
+                case '[' when state == State.Start: indexOfLetters++; state = State.Program; break;
                 case '\n' or ' ' or '\r':
                     // в таком случае файл не является некорретным, поэтому просто пропускаем такие символы
                     indexOfLetters++;
@@ -225,24 +223,48 @@ public static class Methods
 
     public static void ReadingThroughConsole()
     {
-        Console.WriteLine("Введите количество объектов, которые вы хотите добавить в файл: ");
-        int kol;
-        if (!(int.TryParse(Console.ReadLine(), out kol) && kol > 0))
-        {
-            Console.WriteLine("Пожалуйста, введите целое число большее нуля: ");
-        }
-        
         Console.WriteLine("Теперь произведите ввод по каждому объекту. После каждого объекта мы будем вас уведомлять о корректном вводе.");
+        Console.WriteLine("Квадртные скобки не требуются, введите данные по объекту, как и в json файле с фигурными скобками.");
         Console.WriteLine("Вот так выглядит структура правильного ввода данных. Пожалуйста, соблюдайте ее, иначе ваши данные нельзя будет считать.");
         // добавить здесь \r
         Console.WriteLine("{\n    \"store_id\": 3,\n    \"store_name\": \"English, Tran and Horne\",\n    \"location\": \"New Dustinview\",\n    \"employees\": [\n      \"Christopher Brewer\",\n      \"Jackie Reed\",\n      \"Cory Yates\",\n      \"Nicole Montoya\",\n      \"Stacy Hansen\",\n      \"Julie Garcia\",\n      \"Thomas Rose\",\n      \"Jeffrey Martin\"\n    ],\n    \"products\": [\n      \"especially\",\n      \"upon\",\n      \"when\",\n      \"before\",\n      \"various\",\n      \"entire\",\n      \"government\",\n      \"official\",\n      \"wide\",\n      \"boy\"\n    ]\n  },");
-
-        for (int i = 0; i < kol; i++)
+        bool flagForObject = true;
+        
+        while (flagForObject)
         {
             StringBuilder newObject = new StringBuilder("[");
-            // newObject.Append(Console.ReadLine()); ??? 
-            newObject.Append("]"); 
-            // CheсkString(); --> должен передавать строку дополнительно
+            string line;
+            do
+            {
+                line = Console.ReadLine();
+                if (line != null)
+                {
+                    newObject.Append(line);
+                }
+            } while (line != null);
+            newObject.Append("]");
+            try
+            {
+                CheсkString(newObject.ToString());
+                // ReadJson();
+                Console.WriteLine("Объект успешно считан и добавлен");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Введенный объект не соответствует структуре, повторите попытку: ");
+                continue;
+            }
+            
+            Console.WriteLine("Хотите добавить еще объектов?");
+            Menu switchWriter = new Menu(new[] { "\t1. Хочу добавить еще объектов", "\t2. Больше не хочу добавлять объекты" });
+            if (switchWriter.ShowMenu() == 1)
+            {
+                continue;
+            }
+            else
+            {
+                flagForObject = false;
+            }
         }
     }
 }
