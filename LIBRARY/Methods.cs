@@ -265,7 +265,7 @@ public static class Methods
 
     public static void FilterList(List<Store> objects)
     {
-        Menu switchFilter = new Menu(new[] {"store_id", "store_name", "location", "employees", "products" }, "По какому полю произвести фильтрацию?");
+        Menu switchFilter = new Menu(new[] {"\t1. store_id", "\t2. store_name", "\t3. location", "\t4. employees", "\t5. products" }, "По какому полю произвести фильтрацию?");
         switch (switchFilter.ShowMenu())
         {
             case 1:
