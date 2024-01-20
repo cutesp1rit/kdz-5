@@ -3,7 +3,7 @@ using System.Xml.Serialization;
 
 namespace LIBRARY;
 
-public class Store
+public class Store : IComparable
 {
     private readonly int _storeId;
     private readonly string _storeName;
@@ -50,27 +50,54 @@ public class Store
         _products = products;
     }
 
-    // вот этот метод потом уберу, наверное
     public override string ToString()
     {
         StringBuilder myString = new StringBuilder();
+        myString.Append("Store_id: ");
         myString.Append(StoreId);
-        myString.Append(' ');
+        myString.Append('\n');
+        myString.Append("Store_name: ");
         myString.Append(StoreName);
-        myString.Append(' ');
+        myString.Append('\n');
+        myString.Append("Location: ");
         myString.Append(Location);
         myString.Append('\n');
-        foreach (string some in  Employees)
+        myString.Append("Employees: ");
+        for (int i = 0; i < Employees.Length; i++)
         {
-            myString.Append(some);
-            myString.Append(' ');
+            myString.Append(Employees[i]);
+            if (i != Employees.Length - 1)
+            {
+                myString.Append(", ");
+            }
         }
         myString.Append('\n');
-        foreach (string some in Products)
+        myString.Append("Products: ");
+        for (int i = 0; i < Products.Length; i++)
         {
-            myString.Append(some);
-            myString.Append(' ');
+            myString.Append(Products[i]);
+            if (i != Products.Length - 1)
+            {
+                myString.Append(", ");
+            }
         }
+        myString.Append('\n');
         return myString.ToString();
+    }
+
+    public int CompareTo(object someObject)
+    {
+        // сравнивать можно через id
+        if (this.StoreId > ((Store) someObject).StoreId)
+        {
+            return 1; 
+        }
+
+        if (this.StoreId < ((Store) someObject).StoreId)
+        {
+            return -1;
+        }
+
+        return 0;
     }
 }

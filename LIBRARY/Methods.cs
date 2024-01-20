@@ -269,19 +269,19 @@ public static class Methods
         switch (switchFilter.ShowMenu())
         {
             case 1:
-                // FilterField("store_id", objects);
+                FilterFieldInt(objects);
                 break;
             case 2:
-                // FilterField("store_name", objects);
+                FilterFieldString("store_name", objects);
                 break;
             case 3:
-                // FilterField("location", objects);
+                FilterFieldString("location", objects);
                 break;
             case 4:
-                // FilterField("employees", objects);
+                FilterFieldString("employees", objects);
                 break;
             case 5:
-                // FilterField("products", objects);
+                FilterFieldString("products", objects);
                 break;
         }
         
@@ -292,6 +292,135 @@ public static class Methods
         }
         
         Console.WriteLine("Нажмите Enter, чтобы перейти обратно к меню...");
-        Console.ReadLine();
+        while (Console.ReadKey().Key != ConsoleKey.Enter) { }
+    }
+
+    public static void FilterFieldInt(List<Store> objects)
+    { // фильтровка id сделал через CompareTo
+        for (int i = objects.Count - 1; i > 0; i--)
+        {
+            for (int j = 0; j < i; j++)
+            {
+                if (objects[j].CompareTo(objects[j+1]) > 0)
+                {
+                    Store tmp1 = objects[j];
+                    objects[j] = objects[j + 1];
+                    objects[j + 1] = tmp1;
+                }
+            }
+        }
+    }
+
+    public static void FilterFieldString (string field, List<Store> objects)
+    {
+        if (field == "store_name")
+        {
+            for (int i = objects.Count - 1; i > 0; i--)
+            {
+                for (int j = 0; j < i; j++)
+                {
+                    if (String.Compare(objects[j].StoreName, objects[j + 1].StoreName) > 0)
+                    {
+                        Store tmp1 = objects[j];
+                        objects[j] = objects[j + 1];
+                        objects[j + 1] = tmp1;
+                    }
+                }
+            }
+        }
+        if (field == "location")
+        {
+            for (int i = objects.Count - 1; i > 0; i--)
+            {
+                for (int j = 0; j < i; j++)
+                {
+                    if (String.Compare(objects[j].Location, objects[j + 1].Location) > 0)
+                    {
+                        Store tmp1 = objects[j];
+                        objects[j] = objects[j + 1];
+                        objects[j + 1] = tmp1;
+                    }
+                }
+            }
+        }
+        // сортировка массивов происходит по первому значению
+        if (field == "employees")
+        {
+            for (int i = objects.Count - 1; i > 0; i--)
+            {
+                for (int j = 0; j < i; j++)
+                {
+                    if (String.Compare(objects[j].Employees[0], objects[j + 1].Employees[0]) > 0)
+                    {
+                        Store tmp1 = objects[j];
+                        objects[j] = objects[j + 1];
+                        objects[j + 1] = tmp1;
+                    }
+                }
+            }
+        }
+        if (field == "products")
+        {
+            for (int i = objects.Count - 1; i > 0; i--)
+            {
+                for (int j = 0; j < i; j++)
+                {
+                    if (String.Compare(objects[j].Products[0], objects[j + 1].Products[0]) > 0)
+                    {
+                        Store tmp1 = objects[j];
+                        objects[j] = objects[j + 1];
+                        objects[j + 1] = tmp1;
+                    }
+                }
+            }
+        }
+    } 
+
+    public static void SortList(List<Store> objects)
+    {
+        Menu switchFilter = new Menu(new[] {"\t1. store_id", "\t2. store_name", "\t3. location", "\t4. employees", "\t5. products" }, "По какому полю произвести сортировку?");
+        switch (switchFilter.ShowMenu())
+        {
+            case 1:
+                // SortField("store_id", objects);
+                break;
+            case 2:
+                // SortField("store_name", objects);
+                break;
+            case 3:
+                // SortField("location", objects);
+                break;
+            case 4:
+                // SortField("employees", objects);
+                break;
+            case 5:
+                // SortField("products", objects);
+                break;
+        }
+        
+        foreach (Store obj in objects)
+        {
+            Console.WriteLine(obj);
+            Console.WriteLine();
+        }
+        
+        Console.WriteLine("Нажмите Enter, чтобы перейти обратно к меню...");
+        while (Console.ReadKey().Key != ConsoleKey.Enter) { }
+    }
+
+    public static void WriteList(List<Store> objects)
+    {
+        Menu switchPreparation = new Menu(new[]
+                { "\t1. Сохранить данные через консоль", "\t2. Сохранить данные через файл" },
+            "Укажите, как вы бы хотели сохранить данные:");
+        switch (switchPreparation.ShowMenu())
+        {
+            case 1:
+                // WritingThroughConsole(objects);
+                break;
+            case 2:
+                // WritingThroughFile(objects);
+                break;
+        }
     }
 }
