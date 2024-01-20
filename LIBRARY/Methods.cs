@@ -272,7 +272,8 @@ public static class Methods
 
     public static void FilterList(List<Store> objects)
     {
-        Menu switchFilter = new Menu(new[] {"\t1. store_id", "\t2. store_name", "\t3. location", "\t4. employees", "\t5. products" }, "По какому полю произвести фильтрацию?");
+        Menu switchFilter = new Menu(new[] {"\t1. store_id", "\t2. store_name", "\t3. location", "\t4. employees",
+            "\t5. products" }, "По какому полю произвести фильтрацию?");
         switch (switchFilter.ShowMenu())
         {
             case 1:
@@ -327,7 +328,7 @@ public static class Methods
         switch (switchFilterString.ShowMenu())
         {
             case 1:
-                // WritingThroughFile(newObjects);
+                WritingThroughFile(newObjects);
                 break;
             case 2:
                 break;
@@ -368,7 +369,7 @@ public static class Methods
         switch (switchFilterString.ShowMenu())
         {
             case 1:
-                // WritingThroughFile(newObjects);
+                WritingThroughFile(newObjects);
                 break;
             case 2:
                 break;
@@ -376,7 +377,8 @@ public static class Methods
     }
     public static void SortList(List<Store> objects)
     {
-        Menu switchFilter = new Menu(new[] {"\t1. store_id", "\t2. store_name", "\t3. location", "\t4. employees", "\t5. products" }, "По какому полю произвести сортировку?");
+        Menu switchFilter = new Menu(new[] {"\t1. store_id", "\t2. store_name", "\t3. location", "\t4. employees",
+            "\t5. products" }, "По какому полю произвести сортировку?");
         switch (switchFilter.ShowMenu())
         {
             case 1:
@@ -445,7 +447,7 @@ public static class Methods
                 WritingThroughConsole(objects);
                 break;
             case 2:
-                // WritingThroughFile(objects);
+                WritingThroughFile(objects);
                 break;
         }
     }
@@ -457,6 +459,8 @@ public static class Methods
         {
             Console.WriteLine(obj);
         }
+        Console.WriteLine("Нажмите Enter, чтобы перейти обратно к меню...");
+        while (Console.ReadKey().Key != ConsoleKey.Enter) { }
     }
 
     public static void WritingThroughFile(List<Store> objects)
@@ -491,33 +495,111 @@ public static class Methods
                 {
                     path = "." + Path.DirectorySeparatorChar + CurrentFile + ".json";
                 }
-                string allStrings = File.ReadAllText(path);
-                if (allStrings == null || allStrings.Length == 0) // если файл пустой или null выбрасываем исключение
+                
+                if (!File.Exists(path))
                 {
-                    throw new ArgumentNullException();
-                } 
-                CheсkString(allStrings);
-                JsonParser.ReadJson(allStrings, objects);
-                Console.WriteLine("Файл успешно считан.");
+                    Console.WriteLine("Такого файла не существует, файл будет создан.");
+                }
+                else
+                {
+                    Menu switchPreparation = new Menu(new[]
+                            { "\t1. Перезаписать данные в этом файле", "\t2. Дозаписать данные в этот файл" },
+                        "Укажите, как вы бы хотели сохранить данные?");
+                    switch (switchPreparation.ShowMenu())
+                    {
+                        case 1:
+                            // запускает код ниже
+                            break;
+                        case 2:
+                            using (StreamWriter sw = new StreamWriter(path, true))
+                            {
+                                Console.SetOut(sw);
+                                Console.WriteLine("[");
+                                for (int i = 0; i < objects.Count(); i++)
+                                {
+                                    Console.Write(ObjectToStructure(objects[i]));
+                                    if (i != objects.Count() - 1)
+                                    {
+                                        Console.WriteLine(",");
+                                    }
+                                }
+                                Console.Write("\n]");
+                            }
+                            Console.OpenStandardOutput();
+                            Console.WriteLine("Данные записаны успешно!");
+                            return;
+                    }
+                }
+                using (StreamWriter sw = File.CreateText(path))
+                {
+                    Console.SetOut(sw);
+                    Console.WriteLine("[");
+                    for (int i = 0; i < objects.Count(); i++)
+                    {
+                        Console.Write(ObjectToStructure(objects[i]));
+                        if (i != objects.Count() - 1)
+                        {
+                            Console.WriteLine(",");
+                        }
+                    }
+                    Console.Write("\n]");
+                }
+                Console.OpenStandardOutput();
+                Console.WriteLine("Данные записаны успешно!");
                 break;
             }
             catch (ArgumentNullException e)
             {
                 Console.WriteLine("Файл отсутствует или его структура не соответствуют варианту/шаблону json. Повторите попытку: ");
+                flagForFile = false;
             }
             catch (ArgumentException e)
             {
                 Console.WriteLine("Возникла ошибка при открытии файла, повторите попытку: ");
+                flagForFile = false;
             }
             catch (IOException e)
             {
                 Console.WriteLine("Введено некорректное название файла или он находится не в текущей директории, повторите попытку: ");
+                flagForFile = false;
             }
             catch (Exception e)
             {
                 Console.WriteLine("Возникла непредвиденная ошибка, повторите попытку: ");
+                flagForFile = false;
             }
         }
     }
-    
+
+    public static string ObjectToStructure(Store someObject)
+    {
+        StringBuilder stringObject = new StringBuilder();
+        stringObject.Append($"  {{\n    \"store_id\": {someObject.StoreId},\n    \"store_name\": \"{someObject.StoreName}\"," +
+                            $"\n    \"location\": \"{someObject.Location}\",\n    \"employees\": [\n");
+        for (int i=0; i<someObject.Employees.Length; i++)
+        {
+            if (i != someObject.Employees.Length - 1)
+            {
+                stringObject.Append($"      \"{someObject.Employees[i]}\",\n");
+            }
+            else
+            {
+                stringObject.Append($"      \"{someObject.Employees[i]}\"\n");
+            }
+        }
+        stringObject.Append("    ],\n    \"products\": [\n");
+        for (int i=0; i<someObject.Products.Length; i++)
+        {
+            if (i != someObject.Products.Length - 1)
+            {
+                stringObject.Append($"      \"{someObject.Products[i]}\",\n");
+            }
+            else
+            {
+                stringObject.Append($"      \"{someObject.Products[i]}\"\n");
+            }
+        }
+        stringObject.Append("    ]\n  }");
+        return stringObject.ToString();
+    }
 }
