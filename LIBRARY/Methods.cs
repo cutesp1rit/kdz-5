@@ -269,34 +269,33 @@ public static class Methods
         switch (switchFilter.ShowMenu())
         {
             case 1:
-                FilterFieldInt(objects);
+                // FilterFieldInt(objects);
                 break;
             case 2:
-                FilterFieldString("store_name", objects);
+                // FilterFieldString("store_name", objects);
                 break;
             case 3:
-                FilterFieldString("location", objects);
+                // FilterFieldString("location", objects);
                 break;
             case 4:
-                FilterFieldString("employees", objects);
+                // FilterFieldString("employees", objects);
                 break;
             case 5:
-                FilterFieldString("products", objects);
+                // FilterFieldString("products", objects);
                 break;
         }
         
         foreach (Store obj in objects)
         {
             Console.WriteLine(obj);
-            Console.WriteLine();
         }
         
         Console.WriteLine("Нажмите Enter, чтобы перейти обратно к меню...");
         while (Console.ReadKey().Key != ConsoleKey.Enter) { }
     }
 
-    public static void FilterFieldInt(List<Store> objects)
-    { // фильтровка id сделал через CompareTo
+    public static void SortFieldInt(List<Store> objects)
+    { // Сортировку id сделал через CompareTo
         for (int i = objects.Count - 1; i > 0; i--)
         {
             for (int j = 0; j < i; j++)
@@ -311,7 +310,7 @@ public static class Methods
         }
     }
 
-    public static void FilterFieldString (string field, List<Store> objects)
+    public static void SortFieldString (string field, List<Store> objects)
     {
         if (field == "store_name")
         {
@@ -382,26 +381,25 @@ public static class Methods
         switch (switchFilter.ShowMenu())
         {
             case 1:
-                // SortField("store_id", objects);
+                SortFieldInt(objects);
                 break;
             case 2:
-                // SortField("store_name", objects);
+                SortFieldString("store_name", objects);
                 break;
             case 3:
-                // SortField("location", objects);
+                SortFieldString("location", objects);
                 break;
             case 4:
-                // SortField("employees", objects);
+                SortFieldString("employees", objects);
                 break;
             case 5:
-                // SortField("products", objects);
+                SortFieldString("products", objects);
                 break;
         }
         
         foreach (Store obj in objects)
         {
             Console.WriteLine(obj);
-            Console.WriteLine();
         }
         
         Console.WriteLine("Нажмите Enter, чтобы перейти обратно к меню...");

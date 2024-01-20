@@ -29,7 +29,7 @@ namespace APP
                         Methods.FilterList(objects);
                         break;
                     case 3:
-                        // Methods.DistrictMethod(slaceAllInformation, slaceMassivData, massivData[0]);
+                        Methods.SortList(objects);
                         break;
                     case 4:
                         // ChooseRecords(allInformation, massivData, ref slaceMassivData, ref slaceAllInformation);
