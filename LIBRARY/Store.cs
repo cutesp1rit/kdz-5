@@ -85,6 +85,50 @@ public class Store : IComparable
         return myString.ToString();
     }
 
+    public string WhatIsFieldString(string field)
+    {
+        if (field == "store_name")
+        {
+            return StoreName;
+        }
+        
+        if (field == "location")
+        {
+            return Location;
+        }
+
+        if (field == "employees")
+        {
+            return Employees[0];
+        }
+
+        if (field == "products")
+        {
+            return Products[0];
+        }
+
+        if (field == "store_id")
+        {
+            return StoreId.ToString();
+        }
+
+        return "";
+    }
+
+    public string[] WhatIsFieldArray(string field)
+    {
+        if (field == "employees")
+        {
+            return Employees;
+        }
+
+        if (field == "products")
+        {
+            return Products;
+        }
+
+        return new string[0];
+    }
     public int CompareTo(object someObject)
     {
         // сравнивать можно через id
@@ -92,12 +136,10 @@ public class Store : IComparable
         {
             return 1; 
         }
-
         if (this.StoreId < ((Store) someObject).StoreId)
         {
             return -1;
         }
-
         return 0;
     }
 }

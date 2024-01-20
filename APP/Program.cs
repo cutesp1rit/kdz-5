@@ -32,7 +32,7 @@ namespace APP
                         Methods.SortList(objects);
                         break;
                     case 4:
-                        // ChooseRecords(allInformation, massivData, ref slaceMassivData, ref slaceAllInformation);
+                        Methods.WriteList(objects);
                         break;
                     case 5:
                         mainFlag = false;

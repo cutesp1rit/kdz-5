@@ -5,6 +5,12 @@ namespace LIBRARY;
 
 public static class Methods
 {
+    private static string _currentFile;
+    public static string CurrentFile
+    {
+        get { return _currentFile;  }
+        set { _currentFile = value;  }
+    }
     private enum State
     {
         Start, // самое начальное состояние перед квадратной скобкой
@@ -181,7 +187,8 @@ public static class Methods
         {
             try
             {
-                string path = "." + Path.DirectorySeparatorChar + Console.ReadLine() + ".json"; // назначение пути
+                CurrentFile = Console.ReadLine();
+                string path = "." + Path.DirectorySeparatorChar + CurrentFile + ".json"; // назначение пути
                 string allStrings = File.ReadAllText(path);
                 if (allStrings == null || allStrings.Length == 0) // если файл пустой или null выбрасываем исключение
                 {
@@ -269,112 +276,104 @@ public static class Methods
         switch (switchFilter.ShowMenu())
         {
             case 1:
-                // FilterFieldInt(objects);
+                FilterFieldString("store_id", objects);
                 break;
             case 2:
-                // FilterFieldString("store_name", objects);
+                FilterFieldString("store_name", objects);
                 break;
             case 3:
-                // FilterFieldString("location", objects);
+                FilterFieldString("location", objects);
                 break;
             case 4:
-                // FilterFieldString("employees", objects);
+                FilterFieldArray("employees", objects);
                 break;
             case 5:
-                // FilterFieldString("products", objects);
+                FilterFieldArray("products", objects);
                 break;
-        }
-        
-        foreach (Store obj in objects)
-        {
-            Console.WriteLine(obj);
         }
         
         Console.WriteLine("Нажмите Enter, чтобы перейти обратно к меню...");
         while (Console.ReadKey().Key != ConsoleKey.Enter) { }
     }
 
-    public static void SortFieldInt(List<Store> objects)
-    { // Сортировку id сделал через CompareTo
-        for (int i = objects.Count - 1; i > 0; i--)
+    public static void FilterFieldString(string field, List<Store> objects)
+    {
+        Console.Write("Введите значение по которому хотите отфильтровать: ");
+        string expression = Console.ReadLine();
+        while (expression == null || expression.Length == 0)
         {
-            for (int j = 0; j < i; j++)
+            Console.Write("Введите значение не null и не пустое: ");
+            expression = Console.ReadLine();
+        }
+
+        List<Store> newObjects = new List<Store>();
+        for (int i = 0; i < objects.Count; i++)
+        {
+            if (objects[i].WhatIsFieldString(field).Contains(expression))
             {
-                if (objects[j].CompareTo(objects[j+1]) > 0)
-                {
-                    Store tmp1 = objects[j];
-                    objects[j] = objects[j + 1];
-                    objects[j + 1] = tmp1;
-                }
+                newObjects.Add(objects[i]);
             }
+        }
+        
+        WritingThroughConsole(objects);
+        
+        Console.WriteLine("Нажмите Enter, когда просмотрите данные и будете готовы двигаться дальше!");
+        while (Console.ReadKey().Key != ConsoleKey.Enter) { }
+        
+        Menu switchFilterString = new Menu(new[]
+                { "\t1. Да, хочу сохранить", "\t2. Нет, не хочу сохранять" },
+            "Хотите сохранить полученные данные в файл?");
+        
+        switch (switchFilterString.ShowMenu())
+        {
+            case 1:
+                // WritingThroughFile(newObjects);
+                break;
+            case 2:
+                break;
         }
     }
-
-    public static void SortFieldString (string field, List<Store> objects)
+    
+    public static void FilterFieldArray(string field, List<Store> objects)
     {
-        if (field == "store_name")
+        Console.Write("Введите значение по которому хотите отфильтровать: ");
+        string expression = Console.ReadLine();
+        while (expression == null || expression.Length == 0)
         {
-            for (int i = objects.Count - 1; i > 0; i--)
-            {
-                for (int j = 0; j < i; j++)
-                {
-                    if (String.Compare(objects[j].StoreName, objects[j + 1].StoreName) > 0)
-                    {
-                        Store tmp1 = objects[j];
-                        objects[j] = objects[j + 1];
-                        objects[j + 1] = tmp1;
-                    }
-                }
-            }
+            Console.Write("Введите значение не null и не пустое: ");
+            expression = Console.ReadLine();
         }
-        if (field == "location")
-        {
-            for (int i = objects.Count - 1; i > 0; i--)
-            {
-                for (int j = 0; j < i; j++)
-                {
-                    if (String.Compare(objects[j].Location, objects[j + 1].Location) > 0)
-                    {
-                        Store tmp1 = objects[j];
-                        objects[j] = objects[j + 1];
-                        objects[j + 1] = tmp1;
-                    }
-                }
-            }
-        }
-        // сортировка массивов происходит по первому значению
-        if (field == "employees")
-        {
-            for (int i = objects.Count - 1; i > 0; i--)
-            {
-                for (int j = 0; j < i; j++)
-                {
-                    if (String.Compare(objects[j].Employees[0], objects[j + 1].Employees[0]) > 0)
-                    {
-                        Store tmp1 = objects[j];
-                        objects[j] = objects[j + 1];
-                        objects[j + 1] = tmp1;
-                    }
-                }
-            }
-        }
-        if (field == "products")
-        {
-            for (int i = objects.Count - 1; i > 0; i--)
-            {
-                for (int j = 0; j < i; j++)
-                {
-                    if (String.Compare(objects[j].Products[0], objects[j + 1].Products[0]) > 0)
-                    {
-                        Store tmp1 = objects[j];
-                        objects[j] = objects[j + 1];
-                        objects[j + 1] = tmp1;
-                    }
-                }
-            }
-        }
-    } 
 
+        List<Store> newObjects = new List<Store>();
+        for (int i = 0; i < objects.Count; i++)
+        {
+            foreach (string var in objects[i].WhatIsFieldArray(field))
+            {
+                if (var.Contains(expression))
+                {
+                    newObjects.Add(objects[i]);
+                    break;
+                }
+            }
+        }
+        
+        WritingThroughConsole(objects);
+        
+        Console.WriteLine("Нажмите Enter, когда просмотрите данные и будете готовы двигаться дальше!");
+        while (Console.ReadKey().Key != ConsoleKey.Enter) { }
+        
+        Menu switchFilterString = new Menu(new[]
+                { "\t1. Да, хочу сохранить", "\t2. Нет, не хочу сохранять" },
+            "Хотите сохранить полученные данные в файл?");
+        switch (switchFilterString.ShowMenu())
+        {
+            case 1:
+                // WritingThroughFile(newObjects);
+                break;
+            case 2:
+                break;
+        }
+    }
     public static void SortList(List<Store> objects)
     {
         Menu switchFilter = new Menu(new[] {"\t1. store_id", "\t2. store_name", "\t3. location", "\t4. employees", "\t5. products" }, "По какому полю произвести сортировку?");
@@ -397,14 +396,43 @@ public static class Methods
                 break;
         }
         
-        foreach (Store obj in objects)
-        {
-            Console.WriteLine(obj);
-        }
+        WritingThroughConsole(objects);
         
         Console.WriteLine("Нажмите Enter, чтобы перейти обратно к меню...");
         while (Console.ReadKey().Key != ConsoleKey.Enter) { }
     }
+    
+    public static void SortFieldInt(List<Store> objects)
+    { // Сортировку id сделал через CompareTo
+        for (int i = objects.Count - 1; i > 0; i--)
+        {
+            for (int j = 0; j < i; j++)
+            {
+                if (objects[j].CompareTo(objects[j+1]) > 0)
+                {
+                    Store tmp1 = objects[j];
+                    objects[j] = objects[j + 1];
+                    objects[j + 1] = tmp1;
+                }
+            }
+        }
+    }
+
+    public static void SortFieldString (string field, List<Store> objects)
+    {
+        for (int i = objects.Count - 1; i > 0; i--)
+            {
+                for (int j = 0; j < i; j++)
+                {
+                    if (String.Compare(objects[j].WhatIsFieldString(field), objects[j + 1].WhatIsFieldString(field)) > 0)
+                    {
+                        Store tmp1 = objects[j];
+                        objects[j] = objects[j + 1];
+                        objects[j + 1] = tmp1;
+                    }
+                }
+            }
+    } 
 
     public static void WriteList(List<Store> objects)
     {
@@ -414,11 +442,82 @@ public static class Methods
         switch (switchPreparation.ShowMenu())
         {
             case 1:
-                // WritingThroughConsole(objects);
+                WritingThroughConsole(objects);
                 break;
             case 2:
                 // WritingThroughFile(objects);
                 break;
         }
     }
+
+    public static void WritingThroughConsole(List<Store> objects)
+    {
+        Console.OpenStandardOutput();
+        foreach (Store obj in objects)
+        {
+            Console.WriteLine(obj);
+        }
+    }
+
+    public static void WritingThroughFile(List<Store> objects)
+    {
+        Menu switchPreparation = new Menu(new[]
+                { "\t1. Перезаписать данные в использованном файле", "\t2. Записать данные в другой файл" },
+            "Укажите, как вы бы хотели сохранить данные?");
+        switch (switchPreparation.ShowMenu())
+        {
+            case 1:
+                MainWriting(objects, true);
+                break;
+            case 2:
+                MainWriting(objects, false);
+                break;
+        }
+    }
+
+    public static void MainWriting(List<Store> objects, bool flagForFile)
+    {
+        while (true)
+        {
+            try
+            {
+                string path = "";
+                if (!flagForFile)
+                {
+                    Console.WriteLine("Введите имя файла (разрешение не указывайте): ");
+                    path = "." + Path.DirectorySeparatorChar + Console.ReadLine() + ".json"; // назначение пути
+                }
+                else
+                {
+                    path = "." + Path.DirectorySeparatorChar + CurrentFile + ".json";
+                }
+                string allStrings = File.ReadAllText(path);
+                if (allStrings == null || allStrings.Length == 0) // если файл пустой или null выбрасываем исключение
+                {
+                    throw new ArgumentNullException();
+                } 
+                CheсkString(allStrings);
+                JsonParser.ReadJson(allStrings, objects);
+                Console.WriteLine("Файл успешно считан.");
+                break;
+            }
+            catch (ArgumentNullException e)
+            {
+                Console.WriteLine("Файл отсутствует или его структура не соответствуют варианту/шаблону json. Повторите попытку: ");
+            }
+            catch (ArgumentException e)
+            {
+                Console.WriteLine("Возникла ошибка при открытии файла, повторите попытку: ");
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine("Введено некорректное название файла или он находится не в текущей директории, повторите попытку: ");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Возникла непредвиденная ошибка, повторите попытку: ");
+            }
+        }
+    }
+    
 }
