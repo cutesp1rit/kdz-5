@@ -118,6 +118,10 @@ public static class Methods
                     indexOfLetters++;
                     state = State.ContentFieldMassivString;
                     break;
+                case ']' when state == State.ContentFieldMassivString:
+                    indexOfLetters++;
+                    state = State.Comma;
+                    break;
                 case '"' when state == State.ContentFieldMassivString:
                     indexOfLetters++;
                     while (allStrings[indexOfLetters] != '"')
@@ -483,6 +487,7 @@ public static class Methods
     {
         while (true)
         {
+
             try
             {
                 string path = "";
@@ -530,6 +535,7 @@ public static class Methods
                             return;
                     }
                 }
+                // TextWriter oldOut = Console.Out;
                 using (StreamWriter sw = File.CreateText(path))
                 {
                     Console.SetOut(sw);
@@ -544,7 +550,11 @@ public static class Methods
                     }
                     Console.Write("\n]");
                 }
-                Console.OpenStandardOutput();
+                // Console.SetOut(oldOut);
+                var standardOutput = new StreamWriter(Console.OpenStandardOutput());
+                standardOutput.AutoFlush = true;
+                Console.SetOut(standardOutput);
+                Console.OutputEncoding = Encoding.UTF8;
                 Console.WriteLine("Данные записаны успешно!");
                 break;
             }

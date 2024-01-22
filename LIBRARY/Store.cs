@@ -99,11 +99,19 @@ public class Store : IComparable
 
         if (field == "employees")
         {
+            if (Employees.Length == 0)
+            {
+                return "-";
+            }
             return Employees[0];
         }
-
+        
         if (field == "products")
         {
+            if (Products.Length == 0)
+            {
+                return "-";
+            }
             return Products[0];
         }
 
