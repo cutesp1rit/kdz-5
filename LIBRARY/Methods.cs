@@ -193,14 +193,27 @@ public static class Methods
             {
                 CurrentFile = Console.ReadLine();
                 string path = "." + Path.DirectorySeparatorChar + CurrentFile + ".json"; // назначение пути
-                string allStrings = File.ReadAllText(path);
+                StringBuilder stringFile = new StringBuilder();
+                using (StreamReader sr = new StreamReader(path))
+                {
+                    Console.SetIn(sr);
+                    string line;
+                    while ((line = Console.ReadLine()) != null)
+                    {
+                        stringFile.Append(line);
+                    }
+                }
+                Console.SetIn(new StreamReader(Console.OpenStandardInput()));
+                Console.OutputEncoding = Encoding.UTF8;
+                string allStrings = stringFile.ToString();
                 if (allStrings == null || allStrings.Length == 0) // если файл пустой или null выбрасываем исключение
                 {
                     throw new ArgumentNullException();
-                } 
+                }
                 CheсkString(allStrings);
                 JsonParser.ReadJson(allStrings, objects);
                 Console.WriteLine("Файл успешно считан.");
+                Thread.Sleep(1500);
                 break;
             }
             catch (ArgumentNullException e)
@@ -265,6 +278,7 @@ public static class Methods
                 "добавлять объекты" }, "Хотите добавить еще объектов?");
             if (switchWriter.ShowMenu() == 1)
             {
+                Console.WriteLine("Когда объект будет введен нажмите \"CTRL\" + \"Z\"!!!");
                 continue;
             }
             else
@@ -296,9 +310,6 @@ public static class Methods
                 FilterFieldArray("products", objects);
                 break;
         }
-        
-        Console.WriteLine("Нажмите Enter, чтобы перейти обратно к меню...");
-        while (Console.ReadKey().Key != ConsoleKey.Enter) { }
     }
 
     public static void FilterFieldString(string field, List<Store> objects)

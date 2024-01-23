@@ -131,7 +131,7 @@ namespace LIBRARY
                         // если id не целый или null, или там лишние символы
                         if (!int.TryParse(information[0], out id))
                         {
-                            id = -1; // или может здесь лучше исключение выкинуть
+                            id = 0; // или может здесь лучше исключение выкинуть
                         }
 
                         objects.Add(new Store(id, information[1], information[2], employeesMassiv,
@@ -186,47 +186,9 @@ namespace LIBRARY
                     {
                         path = "." + Path.DirectorySeparatorChar + Methods.CurrentFile + ".json";
                     }
-
-                    if (!File.Exists(path))
+                    if (File.Exists(path))
                     {
-                        Console.WriteLine("Такого файла не существует, файл будет создан.");
-                    }
-                    else
-                    {
-                        Menu switchPreparation = new Menu(new[]
-                                { "\t1. Перезаписать данные в этом файле", "\t2. Дозаписать данные в этот файл" },
-                            "Укажите, как вы бы хотели сохранить данные?");
-                        switch (switchPreparation.ShowMenu())
-                        {
-                            case 1:
-                                // запускает код ниже
-                                break;
-                            case 2:
-                                // поток для ДОЗАПИСИ файла ниже
-                                using (StreamWriter sw = new StreamWriter(path, true))
-                                {
-                                    Console.SetOut(sw);
-                                    Console.WriteLine("[");
-                                    for (int i = 0; i < objects.Count(); i++)
-                                    {
-                                        Console.Write(Methods.ObjectToStructure(objects[i]));
-                                        if (i != objects.Count() - 1)
-                                        {
-                                            Console.WriteLine(",");
-                                        }
-                                    }
-                                    Console.Write("\n]");
-                                }
-                                var standardOutput1 = new StreamWriter(Console.OpenStandardOutput());
-                                standardOutput1.AutoFlush = true;
-                                Console.SetOut(standardOutput1);
-                                Console.OutputEncoding = Encoding.UTF8;
-                                Console.WriteLine("Данные записаны успешно!");
-                                
-                                Console.WriteLine("Нажмите Enter, чтобы перейти обратно к меню...");
-                                while (Console.ReadKey().Key != ConsoleKey.Enter) { }
-                                return;
-                        }
+                        Console.WriteLine("Такой файл существует, данные в нем будут перезаписаны.");
                     }
                     // поток для ПЕРЕЗАПИСИ файла
                     using (StreamWriter sw = File.CreateText(path))
@@ -248,8 +210,7 @@ namespace LIBRARY
                     Console.SetOut(standardOutput);
                     Console.OutputEncoding = Encoding.UTF8;
                     Console.WriteLine("Данные записаны успешно!");
-                    Console.WriteLine("Нажмите Enter, чтобы перейти обратно к меню...");
-                    while (Console.ReadKey().Key != ConsoleKey.Enter) { }
+                    Thread.Sleep(2500);
                     break;
                 }
                 catch (ArgumentNullException e)

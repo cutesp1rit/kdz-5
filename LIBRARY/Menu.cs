@@ -1,5 +1,5 @@
 namespace LIBRARY;
-
+// класс отвечает за оформление меню-switch
 public class Menu
 {
     private string[] _arrayCases;
