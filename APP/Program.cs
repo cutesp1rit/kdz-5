@@ -13,9 +13,14 @@ namespace APP
         // должно быть поле по которму я сортирую/фильтрую
         // а у тебя там файл не считывается, чек тг 
         // записывать ли null, если у нас пустое значение? да пофиг? 
+        // дозапись в файл, а потом считывание
+        
         public static void Main()
         {
+            
             List<Store> objects = new List<Store>(150); // список для объектов Store
+            // сначала запрашиваем у пользователя хотя бы какие-то объекты
+            Methods.PreparationForReading(objects);
             bool mainFlag = true;
             do
             {

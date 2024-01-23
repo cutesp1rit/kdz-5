@@ -319,23 +319,26 @@ public static class Methods
                 newObjects.Add(objects[i]);
             }
         }
-        
-        WritingThroughConsole(objects);
-        
-        Console.WriteLine("Нажмите Enter, когда просмотрите данные и будете готовы двигаться дальше!");
-        while (Console.ReadKey().Key != ConsoleKey.Enter) { }
-        
-        Menu switchFilterString = new Menu(new[]
-                { "\t1. Да, хочу сохранить", "\t2. Нет, не хочу сохранять" },
-            "Хотите сохранить полученные данные в файл?");
-        
-        switch (switchFilterString.ShowMenu())
+
+        if (newObjects.Count == 0)
         {
-            case 1:
-                WritingThroughFile(newObjects);
-                break;
-            case 2:
-                break;
+            Console.WriteLine("Такие объекты не были найдены :(");
+        }
+        else
+        {
+            JsonParser.WriteJson(newObjects);
+            Menu switchFilterString = new Menu(new[]
+                    { "\t1. Да, хочу сохранить", "\t2. Нет, не хочу сохранять" },
+                "Хотите сохранить полученные данные в файл?");
+        
+            switch (switchFilterString.ShowMenu())
+            {
+                case 1:
+                    WritingThroughFile(newObjects);
+                    break;
+                case 2:
+                    break;
+            }
         }
     }
     
@@ -361,22 +364,26 @@ public static class Methods
                 }
             }
         }
-        
-        WritingThroughConsole(objects);
-        
-        Console.WriteLine("Нажмите Enter, когда просмотрите данные и будете готовы двигаться дальше!");
-        while (Console.ReadKey().Key != ConsoleKey.Enter) { }
-        
-        Menu switchFilterString = new Menu(new[]
-                { "\t1. Да, хочу сохранить", "\t2. Нет, не хочу сохранять" },
-            "Хотите сохранить полученные данные в файл?");
-        switch (switchFilterString.ShowMenu())
+
+        if (newObjects.Count == 0)
         {
-            case 1:
-                WritingThroughFile(newObjects);
-                break;
-            case 2:
-                break;
+            Console.WriteLine("Такие объекты не были найдены :(");
+        }
+        else
+        {
+            JsonParser.WriteJson(newObjects);
+        
+            Menu switchFilterString = new Menu(new[]
+                    { "\t1. Да, хочу сохранить", "\t2. Нет, не хочу сохранять" },
+                "Хотите сохранить полученные данные в файл?");
+            switch (switchFilterString.ShowMenu())
+            {
+                case 1:
+                    WritingThroughFile(newObjects);
+                    break;
+                case 2:
+                    break;
+            }
         }
     }
     public static void SortList(List<Store> objects)
@@ -402,10 +409,7 @@ public static class Methods
                 break;
         }
         
-        WritingThroughConsole(objects);
-        
-        Console.WriteLine("Нажмите Enter, чтобы перейти обратно к меню...");
-        while (Console.ReadKey().Key != ConsoleKey.Enter) { }
+        JsonParser.WriteJson(objects);
     }
     
     public static void SortFieldInt(List<Store> objects)
@@ -448,7 +452,7 @@ public static class Methods
         switch (switchPreparation.ShowMenu())
         {
             case 1:
-                WritingThroughConsole(objects);
+                JsonParser.WriteJson(objects);
                 break;
             case 2:
                 WritingThroughFile(objects);
@@ -456,131 +460,22 @@ public static class Methods
         }
     }
 
-    public static void WritingThroughConsole(List<Store> objects)
-    {
-        Console.OpenStandardOutput();
-        foreach (Store obj in objects)
-        {
-            Console.WriteLine(obj);
-        }
-        Console.WriteLine("Нажмите Enter, чтобы перейти обратно к меню...");
-        while (Console.ReadKey().Key != ConsoleKey.Enter) { }
-    }
-
     public static void WritingThroughFile(List<Store> objects)
     {
         Menu switchPreparation = new Menu(new[]
-                { "\t1. Перезаписать данные в использованном файле", "\t2. Записать данные в другой файл" },
+                { "\t1. Использовать текущий файл", "\t2. Записать данные в другой файл" },
             "Укажите, как вы бы хотели сохранить данные?");
         switch (switchPreparation.ShowMenu())
         {
             case 1:
-                MainWriting(objects, true);
+                JsonParser.WriteJson(objects, true);
                 break;
             case 2:
-                MainWriting(objects, false);
+                JsonParser.WriteJson(objects, false);
                 break;
         }
     }
-
-    public static void MainWriting(List<Store> objects, bool flagForFile)
-    {
-        while (true)
-        {
-
-            try
-            {
-                string path = "";
-                if (!flagForFile)
-                {
-                    Console.WriteLine("Введите имя файла (разрешение не указывайте): ");
-                    path = "." + Path.DirectorySeparatorChar + Console.ReadLine() + ".json"; // назначение пути
-                }
-                else
-                {
-                    path = "." + Path.DirectorySeparatorChar + CurrentFile + ".json";
-                }
-                
-                if (!File.Exists(path))
-                {
-                    Console.WriteLine("Такого файла не существует, файл будет создан.");
-                }
-                else
-                {
-                    Menu switchPreparation = new Menu(new[]
-                            { "\t1. Перезаписать данные в этом файле", "\t2. Дозаписать данные в этот файл" },
-                        "Укажите, как вы бы хотели сохранить данные?");
-                    switch (switchPreparation.ShowMenu())
-                    {
-                        case 1:
-                            // запускает код ниже
-                            break;
-                        case 2:
-                            using (StreamWriter sw = new StreamWriter(path, true))
-                            {
-                                Console.SetOut(sw);
-                                Console.WriteLine("[");
-                                for (int i = 0; i < objects.Count(); i++)
-                                {
-                                    Console.Write(ObjectToStructure(objects[i]));
-                                    if (i != objects.Count() - 1)
-                                    {
-                                        Console.WriteLine(",");
-                                    }
-                                }
-                                Console.Write("\n]");
-                            }
-                            Console.OpenStandardOutput();
-                            Console.WriteLine("Данные записаны успешно!");
-                            return;
-                    }
-                }
-                // TextWriter oldOut = Console.Out;
-                using (StreamWriter sw = File.CreateText(path))
-                {
-                    Console.SetOut(sw);
-                    Console.WriteLine("[");
-                    for (int i = 0; i < objects.Count(); i++)
-                    {
-                        Console.Write(ObjectToStructure(objects[i]));
-                        if (i != objects.Count() - 1)
-                        {
-                            Console.WriteLine(",");
-                        }
-                    }
-                    Console.Write("\n]");
-                }
-                // Console.SetOut(oldOut);
-                var standardOutput = new StreamWriter(Console.OpenStandardOutput());
-                standardOutput.AutoFlush = true;
-                Console.SetOut(standardOutput);
-                Console.OutputEncoding = Encoding.UTF8;
-                Console.WriteLine("Данные записаны успешно!");
-                break;
-            }
-            catch (ArgumentNullException e)
-            {
-                Console.WriteLine("Файл отсутствует или его структура не соответствуют варианту/шаблону json. Повторите попытку: ");
-                flagForFile = false;
-            }
-            catch (ArgumentException e)
-            {
-                Console.WriteLine("Возникла ошибка при открытии файла, повторите попытку: ");
-                flagForFile = false;
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine("Введено некорректное название файла или он находится не в текущей директории, повторите попытку: ");
-                flagForFile = false;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Возникла непредвиденная ошибка, повторите попытку: ");
-                flagForFile = false;
-            }
-        }
-    }
-
+    
     public static string ObjectToStructure(Store someObject)
     {
         StringBuilder stringObject = new StringBuilder();
