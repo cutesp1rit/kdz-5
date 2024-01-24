@@ -1,5 +1,4 @@
 using System.Text;
-using System.Xml.Serialization;
 
 namespace LIBRARY;
 
@@ -50,6 +49,10 @@ public class Store : IComparable
         _products = products;
     }
 
+    /// <summary>
+    /// Переопределенный метод ToString
+    /// </summary>
+    /// <returns></returns>
     public override string ToString()
     {
         StringBuilder myString = new StringBuilder();
@@ -85,6 +88,11 @@ public class Store : IComparable
         return myString.ToString();
     }
 
+    /// <summary>
+    /// Возвращает соответсвенное значение значению поля переданного в параметре
+    /// </summary>
+    /// <param name="field"></param>
+    /// <returns></returns>
     public string WhatIsFieldString(string field)
     {
         if (field == "store_name")
@@ -123,6 +131,11 @@ public class Store : IComparable
         return "";
     }
 
+    /// <summary>
+    /// Возвращает соответсвенный массив значению поля переданного в параметре
+    /// </summary>
+    /// <param name="field"></param>
+    /// <returns></returns>
     public string[] WhatIsFieldArray(string field)
     {
         if (field == "employees")
@@ -137,7 +150,12 @@ public class Store : IComparable
 
         return new string[0];
     }
-    public int CompareTo(object someObject)
+    /// <summary>
+    /// Сравнение объектов через Id
+    /// </summary>
+    /// <param name="someObject"></param>
+    /// <returns></returns>
+    public int CompareTo(object? someObject)
     {
         // сравнивать можно через id
         if (this.StoreId > ((Store) someObject).StoreId)

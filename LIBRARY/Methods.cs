@@ -1,30 +1,31 @@
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace LIBRARY;
 
 public static class Methods
 {
+    // поле для названия файла
     private static string _currentFile;
     public static string CurrentFile
     {
         get { return _currentFile;  }
         set { _currentFile = value;  }
     }
+    // enum-состояния для конечных автоматов
     private enum State
     {
         Start, // самое начальное состояние перед квадратной скобкой
         Program, // состояние, когда мы еще не зашли в определенный объект, то есть не прочитали фигурные скобки
-        Object,
-        Field,
-        ContentFieldString,
+        Object, // находимся в объекте
+        Field, // поле
+        ContentFieldString, // значение поля по стринг
         ContentFieldInt, // это специальное состояние для id, так как оно идет без кавычек, а как число
-        ContentFieldMassiv, // состояние для полей с данными из массивов
-        ContentFieldMassivString,
-        ContentFieldMassivComma,
+        ContentFieldArray, // состояние для полей с данными из массивов
+        ContentFieldArrayString, // значение
+        ContentFieldArrayComma, // ожидаем вхождение запятой
         Comma, // состояние, когда мы ждем запятаю (то есть окончание описания одного из полей)
-        BetweenObjects,
-        Finish
+        BetweenObjects, // для запятой между объектами
+        Finish // финиш
     }
     
     // считаю важным упомянуть, что долго рассуждал над тем, как конкретно реализовать проверку файла.
@@ -36,27 +37,34 @@ public static class Methods
     // было невозможно создавать объекты для класса требуемого в кдз). 
     // поэтому я опираюсь на то, что напротив store_id не может быть массива строк, а напротив location не может
     // быть интовского значения. если такое происходит -- файл некорректный
+    /// <summary>
+    /// Данный метод проверяет поданные данные на корректность структуры.
+    /// </summary>
+    /// <param name="allStrings">данные в одной строке</param>
+    /// <exception cref="ArgumentNullException"></exception>
     public static void CheсkString(string allStrings)
     {
         int indexOfLetters = 0; // индекс по проходу всего файла
         State state = State.Start; // состояние
-        string nameField = "";
+        string nameField = ""; // сравнивать соотвествующие типы
         
         while (indexOfLetters < allStrings.Length)
         {
             char symbol = allStrings[indexOfLetters];
             switch (symbol)
             {
-                // декомпозировать код вот так?
+                // вход в файл
                 case '[' when state == State.Start: indexOfLetters++; state = State.Program; break;
-                case '\n' or ' ' or '\r':
+                case '\n' or ' ' or '\r' or '\t':
                     // в таком случае файл не является некорретным, поэтому просто пропускаем такие символы
                     indexOfLetters++;
                     break;
+                // начало объекта
                 case '{' when state == State.Program:
                     state = State.Object;
                     indexOfLetters++;
                     break;
+                // ожидаем  поле, считываем его и запоминаем
                 case '"' when state == State.Object:
                     state = State.Field;
                     indexOfLetters++;
@@ -70,6 +78,7 @@ public static class Methods
                     nameField = tmp.ToString();
                     indexOfLetters++;
                     break;
+                // ожидаем двоеточие
                 case ':' when state == State.Field:
                     if (nameField == "store_id")
                     {
@@ -81,7 +90,7 @@ public static class Methods
                     }
                     if (nameField == "employees" || nameField == "products")
                     {
-                        state = State.ContentFieldMassiv;
+                        state = State.ContentFieldArray;
                     }
                     // если state не изменился, значит название поля неверное
                     if (state == State.Field)
@@ -90,6 +99,7 @@ public static class Methods
                     }
                     indexOfLetters++;
                     break;
+                // значение для int
                 case char n when ( '0' <=  n &&  n <=  '9') && state == State.ContentFieldInt:
                     // такая запись приемлема
                     indexOfLetters++;
@@ -99,12 +109,14 @@ public static class Methods
                     }
                     state = State.Comma;
                     break;
-                case 'n' when (state == State.ContentFieldInt || state == State.ContentFieldMassiv || state == State.ContentFieldString) 
+                // в случае null вместо значения
+                case 'n' when (state == State.ContentFieldInt || state == State.ContentFieldArray || state == State.ContentFieldString) 
                               && allStrings[indexOfLetters+1] == 'u' && allStrings[indexOfLetters+2] == 'l' && allStrings[indexOfLetters+3] == 'l':
                     // такой исход тоже приемлем для всех трех таких состояний 
                     state = State.Comma;
                     indexOfLetters += 4;
                     break;
+                // считываем значение строки
                 case '"' when state == State.ContentFieldString:
                     indexOfLetters++;
                     while (allStrings[indexOfLetters] != '"')
@@ -114,43 +126,52 @@ public static class Methods
                     indexOfLetters++;
                     state = State.Comma;
                     break;
-                case '[' when state == State.ContentFieldMassiv:
+                // ожидаем [ для начала массива
+                case '[' when state == State.ContentFieldArray:
                     indexOfLetters++;
-                    state = State.ContentFieldMassivString;
+                    state = State.ContentFieldArrayString;
                     break;
-                case ']' when state == State.ContentFieldMassivString:
+                // если массив пустой
+                case ']' when state == State.ContentFieldArrayString:
                     indexOfLetters++;
                     state = State.Comma;
                     break;
-                case '"' when state == State.ContentFieldMassivString:
+                // считываем значения массива
+                case '"' when state == State.ContentFieldArrayString:
                     indexOfLetters++;
                     while (allStrings[indexOfLetters] != '"')
                     {
                         indexOfLetters++;
                     }
                     indexOfLetters++;
-                    state = State.ContentFieldMassivComma;
+                    state = State.ContentFieldArrayComma;
                     break;
-                case ',' when state == State.ContentFieldMassivComma:
+                // ожидаем запятую в массиве
+                case ',' when state == State.ContentFieldArrayComma:
                     indexOfLetters++;
-                    state = State.ContentFieldMassivString;
+                    state = State.ContentFieldArrayString;
                     break;
-                case ']' when state == State.ContentFieldMassivComma:
+                // конец массива
+                case ']' when state == State.ContentFieldArrayComma:
                     indexOfLetters++;
                     state = State.Comma;
                     break;
+                // запятая после поля и его значения
                 case ',' when state == State.Comma:
                     indexOfLetters++;
                     state = State.Object;
                     break;
+                // окончание объекта
                 case '}' when state == State.Comma:
                     indexOfLetters++;
                     state = State.BetweenObjects;
                     break;
+                // запятая после объекта
                 case ',' when state == State.BetweenObjects:
                     indexOfLetters++;
                     state = State.Program;
                     break;
+                // конец файла
                 case ']' when state == State.BetweenObjects:
                     indexOfLetters++;
                     state = State.Finish;
@@ -160,12 +181,17 @@ public static class Methods
                     throw new ArgumentNullException();
             }
         }
+        // проверяем, что закончили в верном состояние, иначе выбрасываем ошибку
         if (state != State.Finish)
         {
             throw new ArgumentNullException();
         }
     }
 
+    /// <summary>
+    /// Метод для подготовки к вызову считывания, показ меню
+    /// </summary>
+    /// <param name="objects"></param>
     public static void PreparationForReading(List<Store> objects)
     {
         Menu switchPreparation = new Menu(new[]
@@ -181,11 +207,13 @@ public static class Methods
                 break;
         }
     }
-
+    /// <summary>
+    /// Метод чтения данных через файл
+    /// </summary>
+    /// <param name="objects"></param>
+    /// <exception cref="ArgumentNullException"></exception>
     public static void ReadingThroughFile(List<Store> objects)
     {
-        // абсолютный путь ? или просто имя файла? 
-        
         Console.WriteLine("Введите имя файла (разрешение не указывайте): ");
         while (true)
         {
@@ -193,7 +221,7 @@ public static class Methods
             {
                 CurrentFile = Console.ReadLine();
                 string path = "." + Path.DirectorySeparatorChar + CurrentFile + ".json"; // назначение пути
-                StringBuilder stringFile = new StringBuilder();
+                StringBuilder stringFile = new StringBuilder(); // для склеивания всех строк в одну
                 using (StreamReader sr = new StreamReader(path))
                 {
                     Console.SetIn(sr);
@@ -204,7 +232,7 @@ public static class Methods
                     }
                 }
                 Console.SetIn(new StreamReader(Console.OpenStandardInput()));
-                Console.OutputEncoding = Encoding.UTF8;
+                Console.OutputEncoding = Encoding.UTF8; // устанавливам стандартную кодировку
                 string allStrings = stringFile.ToString();
                 if (allStrings == null || allStrings.Length == 0) // если файл пустой или null выбрасываем исключение
                 {
@@ -216,25 +244,28 @@ public static class Methods
                 Thread.Sleep(1500);
                 break;
             }
-            catch (ArgumentNullException e)
+            catch (ArgumentNullException)
             {
                 Console.WriteLine("Файл отсутствует или его структура не соответствуют варианту/шаблону json. Повторите попытку: ");
             }
-            catch (ArgumentException e)
+            catch (ArgumentException)
             {
                 Console.WriteLine("Возникла ошибка при открытии файла, повторите попытку: ");
             }
-            catch (IOException e)
+            catch (IOException)
             {
                 Console.WriteLine("Введено некорректное название файла или он находится не в текущей директории, повторите попытку: ");
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Console.WriteLine("Возникла непредвиденная ошибка, повторите попытку: ");
             }
         }
     }
-
+    /// <summary>
+    /// Метод для чтения данных через консоль
+    /// </summary>
+    /// <param name="objects"></param>
     public static void ReadingThroughConsole(List<Store> objects)
     {
         Console.WriteLine("Теперь произведите ввод по каждому объекту. После каждого объекта мы будем вас уведомлять о корректном вводе.");
@@ -244,11 +275,9 @@ public static class Methods
                           "   \"employees\": [\n      \"Christopher Brewer\",\n      \"Jackie Reed\",\n      \"Cory Yates\",\n      \"Nicole Montoya\",\n      \"Stacy Hansen\",\n     " +
                           " \"Julie Garcia\",\n      \"Thomas Rose\",\n      \"Jeffrey Martin\"\n    ],\n    \"products\": [\n      \"especially\",\n      \"upon\",\n      \"when\",\n " +
                           "     \"before\",\n      \"various\",\n      \"entire\",\n      \"government\",\n      \"official\",\n      \"wide\",\n      \"boy\"\n    ]\n  }");
-        // вот про это еще лучше у ассиста спросить!!
         Console.WriteLine("Когда объект будет введен нажмите \"CTRL\" + \"Z\"!!!");
         Console.WriteLine("Введите ваш объект (можно сразу несколько через запятую): ");
-        bool flagForObject = true;
-        
+        bool flagForObject = true; // считываем, пока не введем объект
         while (flagForObject)
         {
             StringBuilder newObject = new StringBuilder("[");
@@ -268,7 +297,7 @@ public static class Methods
                 JsonParser.ReadJson(newObject.ToString(), objects);
                 Console.WriteLine("Объект успешно считан и добавлен");
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Console.WriteLine("Введенный объект не соответствует структуре, повторите попытку: ");
                 continue;
@@ -279,7 +308,6 @@ public static class Methods
             if (switchWriter.ShowMenu() == 1)
             {
                 Console.WriteLine("Когда объект будет введен нажмите \"CTRL\" + \"Z\"!!!");
-                continue;
             }
             else
             {
@@ -287,7 +315,10 @@ public static class Methods
             }
         }
     }
-
+    /// <summary>
+    /// Меню для выбора поля-фильтрации
+    /// </summary>
+    /// <param name="objects"></param>
     public static void FilterList(List<Store> objects)
     {
         Menu switchFilter = new Menu(new[] {"\t1. store_id", "\t2. store_name", "\t3. location", "\t4. employees",
@@ -311,7 +342,11 @@ public static class Methods
                 break;
         }
     }
-
+    /// <summary>
+    /// Фильтрация для обычной строки/int значения
+    /// </summary>
+    /// <param name="field"></param>
+    /// <param name="objects"></param>
     public static void FilterFieldString(string field, List<Store> objects)
     {
         Console.Write("Введите значение по которому хотите отфильтровать: ");
@@ -334,6 +369,8 @@ public static class Methods
         if (newObjects.Count == 0)
         {
             Console.WriteLine("Такие объекты не были найдены :(");
+            Console.WriteLine("Нажмите Enter, чтобы перейти обратно к меню...");
+            while (Console.ReadKey().Key != ConsoleKey.Enter) { }
         }
         else
         {
@@ -352,7 +389,11 @@ public static class Methods
             }
         }
     }
-    
+    /// <summary>
+    /// Метод для фильтрации массива
+    /// </summary>
+    /// <param name="field"></param>
+    /// <param name="objects"></param>
     public static void FilterFieldArray(string field, List<Store> objects)
     {
         Console.Write("Введите значение по которому хотите отфильтровать: ");
@@ -379,6 +420,8 @@ public static class Methods
         if (newObjects.Count == 0)
         {
             Console.WriteLine("Такие объекты не были найдены :(");
+            Console.WriteLine("Нажмите Enter, чтобы перейти обратно к меню...");
+            while (Console.ReadKey().Key != ConsoleKey.Enter) { }
         }
         else
         {
@@ -397,6 +440,10 @@ public static class Methods
             }
         }
     }
+    /// <summary>
+    /// Меню для выбора поля-сортировки
+    /// </summary>
+    /// <param name="objects"></param>
     public static void SortList(List<Store> objects)
     {
         Menu switchFilter = new Menu(new[] {"\t1. store_id", "\t2. store_name", "\t3. location", "\t4. employees",
@@ -422,7 +469,11 @@ public static class Methods
         
         JsonParser.WriteJson(objects);
     }
-    
+    /// <summary>
+    /// Метод для сортировки int значения через сравнения объектов
+    /// Для этого реализован интерфейс CompareTo в классе Store
+    /// </summary>
+    /// <param name="objects"></param>
     public static void SortFieldInt(List<Store> objects)
     { // Сортировку id сделал через CompareTo
         for (int i = objects.Count - 1; i > 0; i--)
@@ -438,14 +489,18 @@ public static class Methods
             }
         }
     }
-
+    /// <summary>
+    /// Метод для сортировки НЕ int значений
+    /// </summary>
+    /// <param name="field"></param>
+    /// <param name="objects"></param>
     public static void SortFieldString (string field, List<Store> objects)
     {
         for (int i = objects.Count - 1; i > 0; i--)
             {
                 for (int j = 0; j < i; j++)
                 {
-                    if (String.Compare(objects[j].WhatIsFieldString(field), objects[j + 1].WhatIsFieldString(field)) > 0)
+                    if (String.Compare(objects[j].WhatIsFieldString(field), objects[j + 1].WhatIsFieldString(field), StringComparison.Ordinal) > 0)
                     {
                         Store tmp1 = objects[j];
                         objects[j] = objects[j + 1];
@@ -454,7 +509,10 @@ public static class Methods
                 }
             }
     } 
-
+    /// <summary>
+    /// Меню-подготовка перед записью
+    /// </summary>
+    /// <param name="objects"></param>
     public static void WriteList(List<Store> objects)
     {
         Menu switchPreparation = new Menu(new[]
@@ -470,7 +528,10 @@ public static class Methods
                 break;
         }
     }
-
+    /// <summary>
+    /// Меню-подготовка перед записью в ФАЙЛ
+    /// </summary>
+    /// <param name="objects"></param>
     public static void WritingThroughFile(List<Store> objects)
     {
         Menu switchPreparation = new Menu(new[]
@@ -486,7 +547,11 @@ public static class Methods
                 break;
         }
     }
-    
+    /// <summary>
+    /// Переводит объект в нужную строку под структуру json
+    /// </summary>
+    /// <param name="someObject"></param>
+    /// <returns></returns>
     public static string ObjectToStructure(Store someObject)
     {
         StringBuilder stringObject = new StringBuilder();

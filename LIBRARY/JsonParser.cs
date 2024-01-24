@@ -4,6 +4,9 @@ namespace LIBRARY
 {
     public static class JsonParser
     {
+        /// <summary>
+        /// Состояния для парсинга json
+        /// </summary>
         enum State
         {
             Field,
@@ -12,10 +15,14 @@ namespace LIBRARY
             ContentFiledForMassiv // состояние для полей с данными из массивов
         }
 
-        // проверь, чтобы со списками все работало!!!!!
+        /// <summary>
+        /// Метод парсинга json файла
+        /// </summary>
+        /// <param name="allStrings"></param>
+        /// <param name="objects"></param>
+        /// <returns></returns>
         public static List<Store> ReadJson(string allStrings, List<Store> objects)
         {
-            string[] massivOfFields = { "store_id", "store_name", "location", "employees", "products" };
             string[] information = { "", "", "" }; // сохранение информации для некоторых полей
             string[] employeesMassiv = new string[0]; // массив для всех сотрудников
             string[] productsMassiv = new string[0]; // массив для всех продуктов
@@ -40,7 +47,7 @@ namespace LIBRARY
                             indexOfLetters++;
                         }
 
-                        nameField = field.ToString();
+                        nameField = field.ToString(); // обновляем имя поля
                         indexOfLetters++;
                         if (nameField == "store_id")
                         {
@@ -52,6 +59,7 @@ namespace LIBRARY
                         }
 
                         break;
+                    // считываем значение поля для int
                     case State.ContentFieldForId when symbol == ':':
                         // возможно может быть ошибка из-за \n or \r, но вроде нет
                         StringBuilder fieldContentId = new StringBuilder();
@@ -68,6 +76,7 @@ namespace LIBRARY
                         state = State.Field;
                         information[0] = contentOfField;
                         break;
+                    // считываем поле string
                     case State.ContentField when symbol == '"':
                         StringBuilder fieldContent = new StringBuilder();
                         indexOfLetters++;
@@ -92,10 +101,12 @@ namespace LIBRARY
                         }
 
                         break;
+                    // начало для массива
                     case State.ContentField when symbol == '[':
                         state = State.ContentFiledForMassiv;
                         indexOfLetters++;
                         break;
+                    // считываем весь массив
                     case State.ContentFiledForMassiv when symbol == '"':
                         StringBuilder content = new StringBuilder();
                         indexOfLetters++;
@@ -110,6 +121,7 @@ namespace LIBRARY
                         contentForMassiv.Append(content);
                         contentForMassiv.Append(';');
                         break;
+                    // считываем конец массива
                     case State.ContentFiledForMassiv when symbol == ']':
                         state = State.Field;
                         indexOfLetters++;
@@ -125,9 +137,10 @@ namespace LIBRARY
 
                         contentForMassiv = new StringBuilder(); // обнуляем
                         break;
+                    // заканчиваем объект и добавляем его в класс
                     case State.Field when symbol == '}':
                         // и еще создать объект здесь надо, а также массив обнулить и все переменные обнулить, наверное
-                        int id = 0;
+                        int id;
                         // если id не целый или null, или там лишние символы
                         if (!int.TryParse(information[0], out id))
                         {
@@ -145,11 +158,13 @@ namespace LIBRARY
                         productsMassiv = new string[0];
                         indexOfLetters++;
                         break;
+                    // считываем запятую после значения поля
                     case State.ContentField when symbol == ',':
                         // вместо значения был null --> оставляем пустое значение в таком случае
                         state = State.Field;
                         indexOfLetters++;
                         break;
+                    // если что проходим дальше
                     default:
                         indexOfLetters++;
                         break;
@@ -163,7 +178,7 @@ namespace LIBRARY
         /// Метод для записи в файл
         /// </summary>
         /// <param name="objects">Список объектов</param>
-        /// <param name="flagForFile"></param>
+        /// <param name="flagForFile">Использовать текущий файл? true - да, false - задать новый</param>
         public static void WriteJson(List<Store> objects, bool flagForFile)
         {
             while (true)
@@ -171,7 +186,7 @@ namespace LIBRARY
                 try
                 {
                     string path = "";
-                    if (!flagForFile)
+                    if (!flagForFile) 
                     {
                         Console.WriteLine("Введите имя файла (разрешение не указывайте): ");
                         string name = Console.ReadLine();
@@ -205,6 +220,7 @@ namespace LIBRARY
                         }
                         Console.Write("\n]");
                     }
+                    // перенаправляем поток и устанавливаем стандартную кодировку
                     var standardOutput = new StreamWriter(Console.OpenStandardOutput());
                     standardOutput.AutoFlush = true;
                     Console.SetOut(standardOutput);
@@ -213,24 +229,24 @@ namespace LIBRARY
                     Thread.Sleep(2500);
                     break;
                 }
-                catch (ArgumentNullException e)
+                catch (ArgumentNullException)
                 {
                     Console.WriteLine(
                         "Файл отсутствует или его структура не соответствуют варианту/шаблону json. Повторите попытку: ");
                     flagForFile = false;
                 }
-                catch (ArgumentException e)
+                catch (ArgumentException)
                 {
                     Console.WriteLine("Возникла ошибка при открытии файла, повторите попытку: ");
                     flagForFile = false;
                 }
-                catch (IOException e)
+                catch (IOException)
                 {
                     Console.WriteLine(
                         "Введено некорректное название файла или он находится не в текущей директории, повторите попытку: ");
                     flagForFile = false;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Console.WriteLine("Возникла непредвиденная ошибка, повторите попытку: ");
                     flagForFile = false;

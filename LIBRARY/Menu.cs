@@ -2,8 +2,8 @@ namespace LIBRARY;
 // класс отвечает за оформление меню-switch
 public class Menu
 {
-    private string[] _arrayCases;
-    private string _quastion;
+    private string[] _arrayCases; // массив с пунктами
+    private string _quastion; // вопрос к ним
 
     public Menu(string[] arrayCases, string quastion)
     {
@@ -43,7 +43,7 @@ public class Menu
             }
             switch (Console.ReadKey().Key)
             {
-                case ConsoleKey.UpArrow:
+                case ConsoleKey.UpArrow: // стрелка вверх
                     indexOfColour--;
                     if (indexOfColour < 0)
                     {
@@ -51,7 +51,7 @@ public class Menu
                     }
 
                     break;
-                case ConsoleKey.DownArrow:
+                case ConsoleKey.DownArrow: // стрелка вниз
                     indexOfColour++;
                     if (indexOfColour >= lengthArray)
                     {
@@ -59,7 +59,7 @@ public class Menu
                     }
 
                     break;
-                case ConsoleKey.Enter:
+                case ConsoleKey.Enter: // произошел выбор
                     flagChoosing = false;
                     break;
             }
