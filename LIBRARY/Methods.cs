@@ -220,6 +220,11 @@ public static class Methods
             try
             {
                 CurrentFile = Console.ReadLine();
+                while (CurrentFile == null || CurrentFile.Length == 0)
+                {
+                    Console.WriteLine("Введите корректное название файла: ");
+                    CurrentFile = Console.ReadLine();
+                }
                 string path = "." + Path.DirectorySeparatorChar + CurrentFile + ".json"; // назначение пути
                 StringBuilder stringFile = new StringBuilder(); // для склеивания всех строк в одну
                 using (StreamReader sr = new StreamReader(path))
@@ -232,7 +237,7 @@ public static class Methods
                     }
                 }
                 Console.SetIn(new StreamReader(Console.OpenStandardInput()));
-                Console.OutputEncoding = Encoding.UTF8; // устанавливам стандартную кодировку
+                Console.InputEncoding = Encoding.Unicode; // устанавливам стандартную кодировку
                 string allStrings = stringFile.ToString();
                 if (allStrings == null || allStrings.Length == 0) // если файл пустой или null выбрасываем исключение
                 {
